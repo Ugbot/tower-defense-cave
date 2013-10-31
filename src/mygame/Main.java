@@ -19,7 +19,7 @@ public class Main extends SimpleApplication {
         AppSettings config = new AppSettings(true);
         config.setTitle("Coimbre's Tower Defense");
         config.setResolution(1280, 600);
-        config.setFullscreen(true);
+        config.setFullscreen(false);
 
         Main app = new Main();
         app.setSettings(config);
