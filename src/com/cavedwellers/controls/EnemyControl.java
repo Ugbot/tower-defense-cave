@@ -13,13 +13,13 @@ import com.cavedwellers.states.GameRunningState;
  * @author Abner Coimbre
  */
 public class EnemyControl extends AbstractControl {
-    private long totalTime;
+    private long initialTime;
     private long currentTime;
 
     GameRunningState currentGame;
 
     public EnemyControl(GameRunningState state) {
-        totalTime = System.currentTimeMillis();
+        initialTime = System.currentTimeMillis();
         currentGame = state;
     }
 
@@ -31,7 +31,7 @@ public class EnemyControl extends AbstractControl {
         /* Only run update code if enemy hasn't died */
         if (getHealth() > 0) {
             currentTime = System.currentTimeMillis();
-            if (currentTime - totalTime >= 60) {
+            if (currentTime - initialTime >= 60) {
                 /* Move enemy forward */
                 if (spatial.getName().startsWith("spider")) {
                     spatial.move(0f, 0f, -0.1f);
@@ -44,7 +44,7 @@ public class EnemyControl extends AbstractControl {
                     currentGame.setGameOver(true);
                     spatial.removeFromParent(); // job is done. Disappear
                 }
-                totalTime = System.currentTimeMillis();
+                initialTime = System.currentTimeMillis();
             }
             return;
         }

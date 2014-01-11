@@ -59,7 +59,7 @@ public class GameRunningState extends AbstractAppState
 
     private float timerBudget = 0;
     private float timerBeam = 0;
-    private long totalTime = 0;
+    private long initialTime = 0;
     private long currentTime = 0;
 
     int towerID = 1;
@@ -77,7 +77,7 @@ public class GameRunningState extends AbstractAppState
 
     private boolean isGhostAllowed = false;
     private long currentTime2;
-    private long totalTime2;
+    private long initialTime2;
     private Node teleporter;
 
     /**
@@ -115,8 +115,8 @@ public class GameRunningState extends AbstractAppState
         flyCamSpotLight.setSpotInnerAngle(10 * FastMath.DEG_TO_RAD);
         simpleApp.getRootNode().addLight(flyCamSpotLight);
 
-        totalTime = System.currentTimeMillis();
-        totalTime2 = System.currentTimeMillis();
+        initialTime = System.currentTimeMillis();
+        initialTime2 = System.currentTimeMillis();
         enemyGenerator = new EnemyGenerator(this, simpleApp.getAssetManager());
 
         /* Background music */
@@ -422,7 +422,7 @@ public class GameRunningState extends AbstractAppState
         currentTime = System.currentTimeMillis();
 
         /* Generate enemies every few seconds (for now just spiders and ghosts). */
-        if (currentTime - totalTime >= 5000)
+        if (currentTime - initialTime >= 5000)
         {
             /* Spider */
             enemyNode.attachChild(enemyGenerator.getSpider(enemyLocations[generator.nextInt(3)]));
@@ -431,12 +431,12 @@ public class GameRunningState extends AbstractAppState
             if (isGhostAllowed)
                 enemyNode.attachChild(enemyGenerator.getGhost(new Vector3f(-230, 5, 0)));
 
-            totalTime = System.currentTimeMillis();
+            initialTime = System.currentTimeMillis();
         }
 
         currentTime2 = System.currentTimeMillis();
 
-        if (currentTime2 - totalTime2 >= 30000 && !isGhostAllowed)
+        if (currentTime2 - initialTime2 >= 30000 && !isGhostAllowed)
         {
             isGhostAllowed = true;
 
