@@ -1,4 +1,4 @@
-package mygame;
+package com.cavedwellers.controls;
 
 import com.jme3.animation.*;
 import com.jme3.asset.AssetManager;
@@ -8,6 +8,7 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.cavedwellers.states.GameRunningState;
 
 /**
  * "Generates" a specified enemy through the use of getters.

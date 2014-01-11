@@ -1,8 +1,9 @@
-package mygame;
+package com.cavedwellers.controls;
 
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
+import com.cavedwellers.states.GameRunningState;
 
 /**
  * Contains the enemy's behavior.

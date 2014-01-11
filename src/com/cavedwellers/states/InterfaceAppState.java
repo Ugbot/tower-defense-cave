@@ -1,4 +1,4 @@
-package mygame;
+package com.cavedwellers.states;
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;

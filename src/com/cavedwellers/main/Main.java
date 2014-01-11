@@ -1,5 +1,6 @@
-package mygame;
+package com.cavedwellers.main;
 
+import com.cavedwellers.states.GameRunningState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
