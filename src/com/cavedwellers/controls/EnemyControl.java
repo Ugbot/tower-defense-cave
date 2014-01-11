@@ -6,26 +6,28 @@ import com.jme3.scene.control.AbstractControl;
 import com.cavedwellers.states.GameRunningState;
 
 /**
+ * This is a spatial control (http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_controls).
+ *
  * Contains the enemy's behavior.
+ *
  * @author Abner Coimbre
  */
 public class EnemyControl extends AbstractControl {
     private long totalTime;
     private long currentTime;
-    
-    GameRunningState currentGameState;
-    
+
+    GameRunningState currentGame;
+
     public EnemyControl(GameRunningState state) {
         totalTime = System.currentTimeMillis();
-        currentGameState = state;
+        currentGame = state;
     }
-    
+
     @Override
     public void controlUpdate(float tpf) {
-        if (currentGameState.isPaused() || currentGameState.isPlayerAddingTower()) {
+        if (currentGame.isPaused() || currentGame.isPlayerAddingTower())
             return;
-        }
-        
+
         /* Only run update code if enemy hasn't died */
         if (getHealth() > 0) {
             currentTime = System.currentTimeMillis();
@@ -39,34 +41,34 @@ public class EnemyControl extends AbstractControl {
 
                 /* Check if it reached the base */
                 if (spatial.getLocalTranslation().getZ() <= -30) {
-                    currentGameState.setGameOver(true);
+                    currentGame.setGameOver(true);
                     spatial.removeFromParent(); // job is done. Disappear
                 }
                 totalTime = System.currentTimeMillis();
             }
             return;
         }
-        currentGameState.increaseBudget(20); // enemy defeated. Give player bonus
-        currentGameState.increaseScore(5);
+        currentGame.increaseBudget(20); // enemy defeated. Give player bonus
+        currentGame.increaseScore(5);
         spatial.removeFromParent(); // useless. Die
     }
-    
+
     @Override
     public void controlRender(RenderManager rm, ViewPort vp) {}
-    
+
     /**
      * Gets enemy's health.
      * @return an int representing enemy's health
      */
-    public int getHealth() { 
-        return spatial.getUserData("health"); 
+    public int getHealth() {
+        return spatial.getUserData("health");
     }
-    
+
     /**
      * Decreases enemy's health by specified amount.
      * @param amount the amount by which to decrease health
      */
-    public void decreaseHealth(int amount) { 
-        spatial.setUserData("health", getHealth() - amount); 
+    public void decreaseHealth(int amount) {
+        spatial.setUserData("health", getHealth() - amount);
     }
 }
