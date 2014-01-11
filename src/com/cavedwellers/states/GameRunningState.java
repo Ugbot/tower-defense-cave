@@ -53,7 +53,7 @@ public class GameRunningState extends AbstractAppState
     private static final Vector3f[] enemyLocations = {new Vector3f(0f, 0f, 269),
                                                       new Vector3f(3f, 0f, 267),
                                                       new Vector3f(-2f, 0f, 269)};;
-    private int level = 1;
+
     private int score = 0;
     private int budget = 50;
 
@@ -463,58 +463,38 @@ public class GameRunningState extends AbstractAppState
         }
     }
 
-    /**
-     * Gets the current game score.
-     * @return the int representing the current score
-     */
-    public int getScore() {
+    public int getScore()
+    {
         return score;
     }
 
-    /**
-     * Increase player's score by specified amount.
-     * (Precondition: amount > 0)
-     * @param amount the amount by which to increase the score
-     */
-    public void increaseScore(int amount) {
-        assert amount > 0;
+    public void increaseScore(int amount)
+    {
+        if (amount > 0)
+            throw new IllegalStateException("Amount to decrease should be specified as a positive int.");
+
         score += amount;
     }
 
-    /**
-     * Gets the budget, which is the number of times the player can recharge
-     * the tower (i.e. to add more charge objects. See Charges.java).
-     * @return the int representing the budget
-     */
-    public int getBudget() {
+    public int getBudget()
+    {
         return budget;
     }
 
-    /**
-     * Decrease budget by specified amount.
-     * (Precondition: amount > 0)
-     * @param amount the amount to decrease the budget by
-     */
-    public void decreaseBudget(int amount) {
-        assert amount > 0;
+    public void decreaseBudget(int amount)
+    {
+        if (amount > 0)
+            throw new IllegalStateException("Amount to decrease should be specified as a positive int.");
+
         budget -= amount;
     }
-    /**
-     * Increase budget by specified amount.
-     * (Precondition: amount > 0)
-     * @param amount the amount to increase the budget by
-     */
-    public void increaseBudget(int amount) {
-        assert amount > 0;
-        budget += amount;
-    }
 
-    /**
-     * Gets the current level.
-     * @return level
-     */
-    public int getLevel() {
-        return level;
+    public void increaseBudget(int amount)
+    {
+        if (amount > 0)
+            throw new IllegalStateException("Amount to increase should be specified as a positive int.");
+
+        budget += amount;
     }
 
     /**
@@ -522,54 +502,46 @@ public class GameRunningState extends AbstractAppState
      * TowerControl.java, who have no explicit access to the asset manager.
      * @return an unshaded material definition
      */
-    public Material getLineMaterial() {
+    public Material getLineMaterial()
+    {
         return new Material(simpleApp.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
     }
 
     /**
-     * Changes the game's ambient color. Useful for setting a new type of atmosphere.
-     * @param color
+     * Changes the game's overall scene color. Useful for setting a new type of atmosphere.
+     * @param color - the new color for the atmosphere
      */
-    public void setAmbientColor(ColorRGBA color) {
+    public void setAmbientColor(ColorRGBA color)
+    {
         atmosphere.setColor(color.mult(5f));
     }
 
     /**
      * Notify whether or not the player is adding a tower.
      */
-    public void setPlayerAddingTower(boolean value) {
-        this.isAddingTower = value;
+    public void setPlayerAddingTower(boolean isPlayerAddingTower)
+    {
+        this.isAddingTower = isPlayerAddingTower;
     }
 
-    /**
-     * Returns whether or not the player is adding a tower.
-     */
-    public boolean isPlayerAddingTower() {
+    public boolean isPlayerAddingTower()
+    {
         return isAddingTower;
     }
 
-    /**
-     * Stops the update() method from... updating.
-     */
-    public void setPause(boolean value) {
-        isGamePaused = value;
+    public void setPause(boolean shouldGameBePaused)
+    {
+        isGamePaused = shouldGameBePaused;
     }
 
-    /**
-     * Alerts whether or not the game is paused.
-     * @return isGamePaused
-     */
-    public boolean isPaused() {
+    public boolean isPaused()
+    {
         return isGamePaused;
     }
 
-    /**
-     * Sets the value of isGameOver. For now only used in update() method to
-     * determine whether or not the player has lost.
-     * @param value
-     */
-    public void setGameOver(boolean value) {
-        isGameOver = value;
+    public void setGameOver(boolean shouldGameBeOver)
+    {
+        isGameOver = shouldGameBeOver;
     }
 
     /**
