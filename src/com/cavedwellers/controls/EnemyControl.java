@@ -12,63 +12,67 @@ import com.cavedwellers.states.GameRunningState;
  *
  * @author Abner Coimbre
  */
-public class EnemyControl extends AbstractControl {
+public class EnemyControl extends AbstractControl 
+{
     private long initialTime;
     private long currentTime;
 
     GameRunningState currentGame;
 
-    public EnemyControl(GameRunningState state) {
+    public EnemyControl(GameRunningState state) 
+    {
         initialTime = System.currentTimeMillis();
         currentGame = state;
     }
 
     @Override
-    public void controlUpdate(float tpf) {
+    public void controlUpdate(float tpf) 
+    {
         if (currentGame.isPaused() || currentGame.isPlayerAddingTower())
             return;
 
         /* Only run update code if enemy hasn't died */
-        if (getHealth() > 0) {
+        if (getHealth() > 0) 
+        {
             currentTime = System.currentTimeMillis();
-            if (currentTime - initialTime >= 60) {
-                /* Move enemy forward */
-                if (spatial.getName().startsWith("spider")) {
+            if (currentTime - initialTime >= 60) 
+            {
+                // Move enemy forward
+                if (spatial.getName().startsWith("spider"))
                     spatial.move(0f, 0f, -0.1f);
-                } else {
+                else
                     spatial.move(0.5f, 0f, 0f); // ghost movement
-                }
 
-                /* Check if it reached the base */
-                if (spatial.getLocalTranslation().getZ() <= -30) {
+                // Check if it reached the plaer's base
+                if (spatial.getLocalTranslation().getZ() <= -30) 
+                {
                     currentGame.setGameOver(true);
                     spatial.removeFromParent(); // job is done. Disappear
                 }
                 initialTime = System.currentTimeMillis();
             }
-            return;
         }
-        currentGame.increaseBudget(20); // enemy defeated. Give player bonus
-        currentGame.increaseScore(5);
-        spatial.removeFromParent(); // useless. Die
+        else
+        {
+            currentGame.increaseBudget(20); // enemy defeated. Give player bonus
+            currentGame.increaseScore(5);
+            spatial.removeFromParent(); // useless. Die
+        }   
     }
 
     @Override
     public void controlRender(RenderManager rm, ViewPort vp) {}
 
-    /**
-     * Gets enemy's health.
-     * @return an int representing enemy's health
-     */
-    public int getHealth() {
+    private int getHealth() 
+    {
         return spatial.getUserData("health");
     }
 
-    /**
-     * Decreases enemy's health by specified amount.
-     * @param amount the amount by which to decrease health
-     */
-    public void decreaseHealth(int amount) {
+    public void decreaseHealth(int amount) 
+    {
+        if (amount < 0)
+            throw new IllegalStateException("Amount to decrease should be specified as a positive int.");
+        
         spatial.setUserData("health", getHealth() - amount);
     }
 }
