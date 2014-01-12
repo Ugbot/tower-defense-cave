@@ -3,8 +3,6 @@ package com.cavedwellers.objects;
 import com.cavedwellers.controls.EnemyControl;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -64,8 +62,7 @@ public class Ghost
     }
     
     /**
-     * Move the ghost relative to the location previously set by a previous move() or
-     * relative to Vector3f(0, 0, 0) if it's the first time this method is called.
+     * Move ghost relative to its prevoius location.
      * @param amountInWorldUnits jMonkey measurements are in World Units (WU)
      */
     public void move(Vector3f amountInWorldUnits)
@@ -74,7 +71,7 @@ public class Ghost
     }
     
     /**
-     * Move the ghost relative Vector3f(0, 0, 0)
+     * Move the ghost relative Vector3f(0, 0, 0).
      * @param amountInWorldUnits jMonkey measurements are in World Units (WU)
      */
     public void moveFromOrigin(Vector3f amountInWorldUnits)

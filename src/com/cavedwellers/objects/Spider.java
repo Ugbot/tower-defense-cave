@@ -76,8 +76,7 @@ public class Spider
     }
     
     /**
-     * Move the spider relative to the location previously set by a previous move() or
-     * relative to Vector3f(0, 0, 0) if it's the first time this method is called.
+     * Move spider relative to its previous location.
      * @param amountInWorldUnits jMonkey measurements are in World Units (WU)
      */
     public void move(Vector3f amountInWorldUnits)
@@ -86,7 +85,7 @@ public class Spider
     }
     
     /**
-     * Move the spider relative Vector3f(0, 0, 0)
+     * Move spider relative to Vector3f(0, 0, 0).
      * @param amountInWorldUnits jMonkey measurements are in World Units (WU)
      */
     public void moveFromOrigin(Vector3f amountInWorldUnits)
