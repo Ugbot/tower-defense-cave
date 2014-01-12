@@ -60,12 +60,14 @@ public class InterfaceAppState extends AbstractAppState {
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
+        
         simpleApp = (SimpleApplication) app;
         
         simpleApp.getInputManager().addMapping(MAPPING_SELECTED, new KeyTrigger(KeyInput.KEY_RETURN));
-        simpleApp.getInputManager().addMapping(MAPPING_MOVING_RIGHT, new KeyTrigger(KeyInput.KEY_NUMPAD6));
-        simpleApp.getInputManager().addMapping(MAPPING_MOVING_LEFT, new KeyTrigger(KeyInput.KEY_NUMPAD4));
+        simpleApp.getInputManager().addMapping(MAPPING_MOVING_RIGHT, new KeyTrigger(KeyInput.KEY_3));
+        simpleApp.getInputManager().addMapping(MAPPING_MOVING_LEFT, new KeyTrigger(KeyInput.KEY_2));
         simpleApp.getInputManager().addMapping(MAPPING_EXIT_MENU, new KeyTrigger(KeyInput.KEY_0));
+        
         simpleApp.getInputManager().addListener(actionListener, 
                                                 MAPPING_SELECTED, 
                                                 MAPPING_MOVING_RIGHT,

@@ -1,11 +1,8 @@
 package com.cavedwellers.objects;
 
-import com.cavedwellers.controls.EnemyControl;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 
 /**
  * A fearsome ghost!
@@ -15,69 +12,30 @@ import com.jme3.scene.Spatial;
  *
  * @author Abner Coimbre
  */
-public class Ghost
+public final class Ghost extends AbstractEnemy
 {
-    private Spatial ghostModel;
-    private static int ghostCount = 0;
-
-    public Ghost(AssetManager assetManager, Node nodeToAttachGhost)
+    public Ghost(AssetManager assetManager, Node rootNode)
     {
-        init(assetManager, nodeToAttachGhost);
+        initEnemyModel(assetManager, rootNode);
     }
 
-    private void init(AssetManager assetManager, Node ghostNode)
+    @Override
+    protected void initEnemyModel(AssetManager assetManager, Node rootNode) 
     {
-        ghostModel = assetManager.loadModel("Models/ghost.j3o");
-
-        ghostModel.setName("ghost" + ghostCount++);
-        ghostModel.setUserData("health", 500);
+        if (enemyModel != null)
+            throw new IllegalStateException("Ghost model already initialized.");
+        
+        enemyModel = assetManager.loadModel("Models/ghost.j3o");
+        enemyModel.setName("ghost" + enemyCount++);
+        enemyModel.setUserData("health", 500);
 
         Material ghostMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         ghostMaterial.setTexture("DiffuseMap", assetManager.loadTexture("Textures/enemy/ghostDiffuse.png"));
         ghostMaterial.setTexture("GlowMap", assetManager.loadTexture("Textures/enemy/ghostGlow.png"));
-        ghostModel.setMaterial(ghostMaterial);
+        
+        enemyModel.setMaterial(ghostMaterial);
+        enemyModel.scale(0.5f, 0.5f, 0.5f);
 
-        ghostModel.scale(0.5f, 0.5f, 0.5f);
-
-        ghostNode.attachChild(ghostModel);
-    }
-
-    public static int amountOfGhostsOnScene()
-    {
-        return ghostCount;
-    }
-
-    /**
-     * (Optional) Adding an EnemyControl class gives the ghost special behavior. See the
-     * package com.cavedwellers.spatials.controls.
-     * @param control
-     */
-    public void addEnemyControl(EnemyControl control)
-    {
-        ghostModel.addControl(control);
-    }
-
-    /**
-     * Move ghost relative to its previous location.
-     * @param amountInWorldUnits jMonkey measurements are in World Units (WU)
-     */
-    public void move(Vector3f amountInWorldUnits)
-    {
-        ghostModel.move(amountInWorldUnits);
-    }
-
-    /**
-     * Move the ghost relative to Vector3f(0, 0, 0).
-     * @param amountInWorldUnits jMonkey measurements are in World Units (WU)
-     */
-    public void moveFromOrigin(Vector3f amountInWorldUnits)
-    {
-        ghostModel.setLocalTranslation(amountInWorldUnits);
-    }
-
-    public void removeFromScene()
-    {
-        ghostModel.removeFromParent();
-        --ghostCount;
-    }
+        rootNode.attachChild(enemyModel);
+    }  
 }

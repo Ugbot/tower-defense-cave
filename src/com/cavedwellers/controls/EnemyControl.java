@@ -8,7 +8,7 @@ import com.cavedwellers.states.GameRunningState;
 /**
  * This is a spatial control (http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_controls).
  *
- * Contains the enemy's behavior.
+ * Contains the enemy's behavior. Currently used by the Ghost and Spider classes.
  *
  * @author Abner Coimbre
  */
@@ -48,9 +48,9 @@ public class EnemyControl extends AbstractControl
         }
         else
         {
-            currentGame.increaseBudget(20); // enemy defeated. Give player bonus
+            currentGame.increaseBudget(20); 
             currentGame.increaseScore(5);
-            spatial.removeFromParent(); // useless. Die
+            spatial.removeFromParent();
         }   
     }
 

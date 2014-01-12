@@ -207,7 +207,7 @@ public class GameRunningState extends AbstractAppState
         simpleApp.getInputManager().addMapping(MAPPING_SHRINK,
                                                new KeyTrigger(KeyInput.KEY_2));
         simpleApp.getInputManager().addMapping(MAPPING_ADD_TOWER,
-                                               new KeyTrigger(KeyInput.KEY_NUMPAD5));
+                                               new KeyTrigger(KeyInput.KEY_5));
         simpleApp.getInputManager().addListener(actionListener,
                                                 MAPPING_GROW, MAPPING_SHRINK, MAPPING_ADD_TOWER);
     }
@@ -434,7 +434,6 @@ public class GameRunningState extends AbstractAppState
                 ghost.move(new Vector3f(-230, 5, 0));
                 ghost.addEnemyControl(new EnemyControl(this));
             }
-                //enemyNode.attachChild(enemyGenerator.getGhost(new Vector3f(-230, 5, 0)));
 
             initialTime = System.currentTimeMillis();
         }
