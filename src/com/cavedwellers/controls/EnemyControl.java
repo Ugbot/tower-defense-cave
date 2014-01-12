@@ -31,23 +31,17 @@ public class EnemyControl extends AbstractControl
         if (currentGame.isPaused() || currentGame.isPlayerAddingTower())
             return;
 
-        /* Only run update code if enemy hasn't died */
         if (getHealth() > 0) 
         {
             currentTime = System.currentTimeMillis();
             if (currentTime - initialTime >= 60) 
             {
-                // Move enemy forward
-                if (spatial.getName().startsWith("spider"))
-                    spatial.move(0f, 0f, -0.1f);
-                else
-                    spatial.move(0.5f, 0f, 0f); // ghost movement
+                moveEnemyForward();
 
-                // Check if it reached the plaer's base
-                if (spatial.getLocalTranslation().getZ() <= -30) 
+                if (hasEnemyReachedBase()) 
                 {
                     currentGame.setGameOver(true);
-                    spatial.removeFromParent(); // job is done. Disappear
+                    spatial.removeFromParent();
                 }
                 initialTime = System.currentTimeMillis();
             }
@@ -60,8 +54,21 @@ public class EnemyControl extends AbstractControl
         }   
     }
 
-    @Override
-    public void controlRender(RenderManager rm, ViewPort vp) {}
+    private void moveEnemyForward()
+    {
+        if (spatial.getName().startsWith("spider"))
+        {
+            spatial.move(0f, 0f, -0.1f);
+            return;
+        }
+        
+        spatial.move(0.5f, 0f, 0f);
+    }
+    
+    private boolean hasEnemyReachedBase()
+    {
+        return spatial.getLocalTranslation().getZ() <= -30;
+    }
 
     private int getHealth() 
     {
@@ -75,4 +82,8 @@ public class EnemyControl extends AbstractControl
         
         spatial.setUserData("health", getHealth() - amount);
     }
+    
+    @Override
+    public void controlRender(RenderManager rm, ViewPort vp) 
+    {}
 }
