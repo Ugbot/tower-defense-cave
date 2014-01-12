@@ -1,7 +1,9 @@
 package com.cavedwellers.states;
 
 import com.cavedwellers.controls.TowerControl;
-import com.cavedwellers.controls.EnemyGenerator;
+import com.cavedwellers.objects.Ghost;
+import com.cavedwellers.objects.Spider;
+import com.cavedwellers.controls.EnemyControl;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -49,10 +51,9 @@ public class GameRunningState extends AbstractAppState
     private static Box mesh = new Box(1, 1, 1);
 
     private Random generator = new Random();
-    private EnemyGenerator enemyGenerator = null;
-    private static final Vector3f[] enemyLocations = {new Vector3f(0f, 0f, 269),
-                                                      new Vector3f(3f, 0f, 267),
-                                                      new Vector3f(-2f, 0f, 269)};;
+    private static final Vector3f[] enemyLocations = {new Vector3f(0f, 1f, 269),
+                                                      new Vector3f(3f, 1f, 267),
+                                                      new Vector3f(-2f, 1f, 269)};;
 
     private int score = 0;
     private int budget = 50;
@@ -117,7 +118,6 @@ public class GameRunningState extends AbstractAppState
 
         initialTime = System.currentTimeMillis();
         initialTime2 = System.currentTimeMillis();
-        enemyGenerator = new EnemyGenerator(this, simpleApp.getAssetManager());
 
         /* Background music */
         AudioNode music = new AudioNode(simpleApp.getAssetManager(), "Sounds/caveTheme.ogg", true);
@@ -421,15 +421,20 @@ public class GameRunningState extends AbstractAppState
 
         currentTime = System.currentTimeMillis();
 
-        /* Generate enemies every few seconds (for now just spiders and ghosts). */
         if (currentTime - initialTime >= 5000)
         {
-            /* Spider */
-            enemyNode.attachChild(enemyGenerator.getSpider(enemyLocations[generator.nextInt(3)]));
+            Spider spider = new Spider(simpleApp.getAssetManager(), enemyNode);
+            spider.move(enemyLocations[generator.nextInt(3)]);
+            spider.addEnemyControl(new EnemyControl(this));
+            spider.enableAnimation();
 
-            /* Ghost */
             if (isGhostAllowed)
-                enemyNode.attachChild(enemyGenerator.getGhost(new Vector3f(-230, 5, 0)));
+            {
+                Ghost ghost = new Ghost(simpleApp.getAssetManager(), enemyNode);
+                ghost.move(new Vector3f(-230, 5, 0));
+                ghost.addEnemyControl(new EnemyControl(this));
+            }
+                //enemyNode.attachChild(enemyGenerator.getGhost(new Vector3f(-230, 5, 0)));
 
             initialTime = System.currentTimeMillis();
         }
@@ -470,7 +475,7 @@ public class GameRunningState extends AbstractAppState
 
     public void increaseScore(int amount)
     {
-        if (amount > 0)
+        if (amount <= 0)
             throw new IllegalStateException("Amount to decrease should be specified as a positive int.");
 
         score += amount;
@@ -483,7 +488,7 @@ public class GameRunningState extends AbstractAppState
 
     public void decreaseBudget(int amount)
     {
-        if (amount > 0)
+        if (amount <= 0)
             throw new IllegalStateException("Amount to decrease should be specified as a positive int.");
 
         budget -= amount;
@@ -491,7 +496,7 @@ public class GameRunningState extends AbstractAppState
 
     public void increaseBudget(int amount)
     {
-        if (amount > 0)
+        if (amount <= 0)
             throw new IllegalStateException("Amount to increase should be specified as a positive int.");
 
         budget += amount;
