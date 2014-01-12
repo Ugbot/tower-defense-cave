@@ -22,23 +22,19 @@ import com.jme3.scene.Spatial;
  */
 public class Spider
 {
-    private static int spiderCount = 0;
+    private Spatial spiderModel;
     
-    AssetManager assetManager;
+    private static int spiderCount = 0;
     
     private AnimControl animationControl;
     private AnimChannel animationChannel;
-    
-    private Spatial spiderModel;
-    
 
-    public Spider(AssetManager givenAssetManager, Node nodeToAttachSpider)
+    public Spider(AssetManager assetManager, Node nodeToAttachSpider)
     {
-        assetManager = givenAssetManager;
-        init(nodeToAttachSpider);     
+        init(assetManager, nodeToAttachSpider);     
     }
     
-    private void init(Node spiderNode)
+    private void init(AssetManager assetManager, Node spiderNode)
     {
         spiderModel = assetManager.loadModel("Models/spider.j3o");
         

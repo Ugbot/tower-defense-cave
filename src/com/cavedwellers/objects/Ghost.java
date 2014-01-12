@@ -17,19 +17,15 @@ import com.jme3.scene.Spatial;
  */
 public class Ghost
 {
-    private static int ghostCount = 0;
-    
-    AssetManager assetManager;
-    
     private Spatial ghostModel;
+    private static int ghostCount = 0;
 
-    public Ghost(AssetManager givenAssetManager, Node nodeToAttachGhost)
+    public Ghost(AssetManager assetManager, Node nodeToAttachGhost)
     {
-        assetManager = givenAssetManager;
-        init(nodeToAttachGhost);     
+        init(assetManager, nodeToAttachGhost);     
     }
     
-    private void init(Node ghostNode)
+    private void init(AssetManager assetManager, Node ghostNode)
     {
         ghostModel = assetManager.loadModel("Models/ghost.j3o");
         
