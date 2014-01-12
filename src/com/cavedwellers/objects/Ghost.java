@@ -80,7 +80,7 @@ public class Ghost
     }
 
     /**
-     * Removes the ghost from the scene.
+     * Remove ghost from the scene.
      */
     public void kill()
     {
