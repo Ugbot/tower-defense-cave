@@ -114,7 +114,7 @@ public class Spider
     }
 
     /**
-     * Remove spider from the scene.
+     * Remove spider from scene.
      */
     public void kill()
     {
