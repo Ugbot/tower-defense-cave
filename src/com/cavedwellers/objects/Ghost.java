@@ -8,11 +8,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 /**
- * A fearsome ghost! 
- * 
+ * A fearsome ghost!
+ *
  * It'll be visible on the scene as long as the given node in the constructor
  * is attached to the root node (or is the root node itself).
- * 
+ *
  * @author Abner Coimbre
  */
 public class Ghost
@@ -22,13 +22,13 @@ public class Ghost
 
     public Ghost(AssetManager assetManager, Node nodeToAttachGhost)
     {
-        init(assetManager, nodeToAttachGhost);     
+        init(assetManager, nodeToAttachGhost);
     }
-    
+
     private void init(AssetManager assetManager, Node ghostNode)
     {
         ghostModel = assetManager.loadModel("Models/ghost.j3o");
-        
+
         ghostModel.setName("ghost" + ghostCount++);
         ghostModel.setUserData("health", 500);
 
@@ -36,38 +36,38 @@ public class Ghost
         ghostMaterial.setTexture("DiffuseMap", assetManager.loadTexture("Textures/enemy/ghostDiffuse.png"));
         ghostMaterial.setTexture("GlowMap", assetManager.loadTexture("Textures/enemy/ghostGlow.png"));
         ghostModel.setMaterial(ghostMaterial);
-        
+
         ghostModel.scale(0.5f, 0.5f, 0.5f);
 
         ghostNode.attachChild(ghostModel);
     }
-    
+
     public static int amountOfGhostsOnScene()
     {
         return ghostCount;
     }
-    
+
     /**
-     * Adding an EnemyControl class gives the ghost special behavior. See the
+     * (Optional) Adding an EnemyControl class gives the ghost special behavior. See the
      * package com.cavedwellers.spatials.controls.
-     * @param control 
+     * @param control
      */
     public void addEnemyControl(EnemyControl control)
     {
         ghostModel.addControl(control);
     }
-    
+
     /**
-     * Move ghost relative to its prevoius location.
+     * Move ghost relative to its previous location.
      * @param amountInWorldUnits jMonkey measurements are in World Units (WU)
      */
     public void move(Vector3f amountInWorldUnits)
     {
         ghostModel.move(amountInWorldUnits);
     }
-    
+
     /**
-     * Move the ghost relative Vector3f(0, 0, 0).
+     * Move the ghost relative to Vector3f(0, 0, 0).
      * @param amountInWorldUnits jMonkey measurements are in World Units (WU)
      */
     public void moveFromOrigin(Vector3f amountInWorldUnits)
@@ -75,10 +75,7 @@ public class Ghost
         ghostModel.setLocalTranslation(amountInWorldUnits);
     }
 
-    /**
-     * Remove ghost from scene.
-     */
-    public void kill()
+    public void removeFromScene()
     {
         ghostModel.removeFromParent();
         --ghostCount;
