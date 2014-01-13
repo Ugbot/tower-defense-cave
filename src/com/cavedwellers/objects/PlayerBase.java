@@ -59,7 +59,6 @@ public class PlayerBase
     
     private void exception(String errorMessage)
     {
-        errorMessage += " It can only be done once per base.";
-        throw new UnsupportedOperationException(errorMessage);
+        throw new UnsupportedOperationException(errorMessage += " It can only be done once per base.");
     }
 }
