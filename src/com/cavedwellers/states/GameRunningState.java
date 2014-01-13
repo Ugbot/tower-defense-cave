@@ -39,51 +39,53 @@ import javax.swing.JOptionPane;
 public final class GameRunningState extends AbstractAppState
 {
     private InterfaceAppState gui;
-
+    
+    private SimpleApplication simpleApp;
+    private AppStateManager stateManager;
+    private AssetManager assetManager;
+    private InputManager inputManager;
+    private ViewPort viewPort;
+    private Camera camera;
+    private Node rootNode;
+    
     private Node beamNode = new Node("beam node");
     private Node towerNode = new Node("tower node");
     private Node enemyNode = new Node("enemy node");
+    
+    private Floor caveFloor;
+    private SkyBox caveSkyBox;
+    private Wall caveWall1;
+    private Wall caveWall2;
+    private Teleporter teleporter;
+    private PlayerBase homeBase;
+    
+    private boolean isGameOver = false;
+    private boolean isGamePaused = false;
+    private boolean isGhostAllowed = false;
+    private boolean isAddingTower = false;
+
+    private AmbientLight atmosphere;
+    private SpotLight cameraLighting;
+    
+    int towerID = 1;
+    private static final String TOWER_ADD = "add tower";
 
     private Random generator = new Random();
     private static final Vector3f[] enemyLocations = {new Vector3f(0f, 1f, 269),
                                                       new Vector3f(3f, 1f, 267),
-                                                      new Vector3f(-2f, 1f, 269)};;
+                                                      new Vector3f(-2f, 1f, 269)};
 
     private int score = 0;
     private int budget = 50;
-
+    
     private float timerBudget = 0;
     private float timerBeam = 0;
+    
     private long initialTime = 0;
     private long currentTime = 0;
-
-    int towerID = 1;
-
-    private boolean isAddingTower = false;
-    private boolean isGamePaused = false;
-    private boolean isGameOver = false;
-
-    private static final String TOWER_ADD = "add tower";
-
-    private AmbientLight atmosphere;
-    private SpotLight cameraLighting;
-
-    private boolean isGhostAllowed = false;
-    private long currentTime2;
+    
     private long initialTime2;
-    private Teleporter teleporter;
-    private Floor caveFloor;
-    private SkyBox caveSkyBox;
-    private Node rootNode;
-    private AssetManager assetManager;
-    private AppStateManager stateManager;
-    private Camera camera;
-    private InputManager inputManager;
-    private Wall caveWall1;
-    private Wall caveWall2;
-    private PlayerBase homeBase;
-    private ViewPort viewPort;
-    private SimpleApplication simpleApp;
+    private long currentTime2;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app)
@@ -355,7 +357,7 @@ public final class GameRunningState extends AbstractAppState
     public void increaseScore(int amount)
     {
         if (amount <= 0)
-            throw new IllegalStateException("Amount to decrease should be specified as a positive int.");
+            throw new IllegalArgumentException("Amount to decrease should be specified as a positive int.");
 
         score += amount;
     }
@@ -368,7 +370,7 @@ public final class GameRunningState extends AbstractAppState
     public void decreaseBudget(int amount)
     {
         if (amount <= 0)
-            throw new IllegalStateException("Amount to decrease should be specified as a positive int.");
+            throw new IllegalArgumentException("Amount to decrease should be specified as a positive int.");
 
         budget -= amount;
     }
@@ -376,7 +378,7 @@ public final class GameRunningState extends AbstractAppState
     public void increaseBudget(int amount)
     {
         if (amount <= 0)
-            throw new IllegalStateException("Amount to increase should be specified as a positive int.");
+            throw new IllegalArgumentException("Amount to increase should be specified as a positive int.");
 
         budget += amount;
     }
