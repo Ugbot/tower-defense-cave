@@ -103,7 +103,7 @@ public class InterfaceAppState extends AbstractAppState {
         ray.setOrigin(simpleApp.getCamera().getLocation());
         ray.setDirection(simpleApp.getCamera().getDirection());
         
-        simpleApp.getRootNode().getChild("collidable node").collideWith(ray, results);
+        simpleApp.getRootNode().getChild("enemy node").collideWith(ray, results);
         
         if (results.size() > 0) {
             if (results.getClosestCollision().getGeometry().getName().startsWith("spider")) {

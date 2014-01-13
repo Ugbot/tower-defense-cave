@@ -1,9 +1,10 @@
 Material My Material : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
-        DiffuseMap : Textures/tower/towerDiffuse.png
+        DiffuseMap : Flip Textures/tower/towerDiffuse.png
         NormalMap : Textures/tower/towerNormal.png
         SpecularMap : Textures/tower/towerSpecular.png
-        Shininess : 30.0
+        Shininess : 50.0
+        GlowColor : 1.0 1.0 1.0 1.0
      }
     AdditionalRenderState {
     }

@@ -1,14 +1,16 @@
 package com.cavedwellers.states;
 
 import com.cavedwellers.controls.TowerControl;
-import com.cavedwellers.objects.Ghost;
-import com.cavedwellers.objects.Spider;
 import com.cavedwellers.controls.EnemyControl;
+import com.cavedwellers.objects.*;
+import com.cavedwellers.utils.*;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioNode;
+import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -17,17 +19,13 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
-import com.jme3.scene.Geometry;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture.WrapMode;
-import com.jme3.util.SkyFactory;
-import com.jme3.util.TangentBinormalGenerator;
 import java.util.Random;
 import javax.swing.JOptionPane;
 
@@ -38,17 +36,13 @@ import javax.swing.JOptionPane;
  *
  * @author Abner Coimbre
  */
-public class GameRunningState extends AbstractAppState
+public final class GameRunningState extends AbstractAppState
 {
-    private SimpleApplication simpleApp;
     private InterfaceAppState gui;
 
     private Node beamNode = new Node("beam node");
     private Node towerNode = new Node("tower node");
     private Node enemyNode = new Node("enemy node");
-    private Node collidable = new Node("collidable node");
-
-    private static Box mesh = new Box(1, 1, 1);
 
     private Random generator = new Random();
     private static final Vector3f[] enemyLocations = {new Vector3f(0f, 1f, 269),
@@ -69,147 +63,148 @@ public class GameRunningState extends AbstractAppState
     private boolean isGamePaused = false;
     private boolean isGameOver = false;
 
-    private static final String MAPPING_GROW = "grow floor";
-    private static final String MAPPING_SHRINK = "shrink floor";
-    private static final String MAPPING_ADD_TOWER = "add tower";
+    private static final String TOWER_ADD = "add tower";
 
     private AmbientLight atmosphere;
-    private SpotLight flyCamSpotLight;
+    private SpotLight cameraLighting;
 
     private boolean isGhostAllowed = false;
     private long currentTime2;
     private long initialTime2;
-    private Node teleporter;
+    private Teleporter teleporter;
+    private Floor caveFloor;
+    private SkyBox caveSkyBox;
+    private Node rootNode;
+    private AssetManager assetManager;
+    private AppStateManager stateManager;
+    private Camera camera;
+    private InputManager inputManager;
+    private Wall caveWall1;
+    private Wall caveWall2;
+    private PlayerBase homeBase;
+    private ViewPort viewPort;
+    private SimpleApplication simpleApp;
 
-    /**
-     * Called automatically when this state is attached.
-     * @param stateManager - The engine's state manager. Could be used to attach other states.
-     * @param app - Gives you access to the resources jMonkeyEngine has to offer (such as the fly cam). It's usually cast to SimpleApplication.
-     */
     @Override
     public void initialize(AppStateManager stateManager, Application app)
     {
         super.initialize(stateManager, app);
 
         simpleApp = (SimpleApplication) app;
+ 
+        initResources();
 
-        simpleApp.getFlyByCamera().setMoveSpeed(50f);
+        initGUI();
 
-        /* Interface (GUI) */
+        initAtmosphere();
+
+        initBloomFilter();
+
+        initCameraLighting();
+
+        initGameObjects();
+        
+        attachNodes();
+        
+        setMusicAndSound();
+        
+        setPlayerControls();
+        
+        initialTime = System.currentTimeMillis();
+        
+        initialTime2 = System.currentTimeMillis();
+    }
+    
+    private void initResources()
+    {
+        if (simpleApp == null)
+            throw new IllegalStateException("simpleApp was not initialized.");
+        
+        this.stateManager = simpleApp.getStateManager();
+        this.assetManager = simpleApp.getAssetManager();
+        this.camera = simpleApp.getCamera();
+        this.viewPort = simpleApp.getViewPort();
+        this.inputManager = simpleApp.getInputManager();
+        this.rootNode = simpleApp.getRootNode();
+    }
+    
+    private void initGUI()
+    {
         gui = new InterfaceAppState(this);
         stateManager.attach(gui);
-
+    }
+    
+    private void initAtmosphere()
+    {
         atmosphere = new AmbientLight();
-        atmosphere.setColor(ColorRGBA.Gray.mult(1.8f));
-        simpleApp.getRootNode().addLight(atmosphere);
-
-        /* Bloom filter */
-        FilterPostProcessor fpp = new FilterPostProcessor(simpleApp.getAssetManager());
-        simpleApp.getViewPort().addProcessor(fpp);
+        setAmbientColor(ColorRGBA.Gray);
+        rootNode.addLight(atmosphere);
+    }
+    
+    private void initBloomFilter()
+    {
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        viewPort.addProcessor(fpp);
         BloomFilter glowishScene = new BloomFilter(BloomFilter.GlowMode.SceneAndObjects);
         fpp.addFilter(glowishScene);
-
-        flyCamSpotLight = new SpotLight();
-        flyCamSpotLight.setColor(ColorRGBA.Orange.mult(5f));
-        flyCamSpotLight.setSpotRange(1000);
-        flyCamSpotLight.setSpotOuterAngle(15 * FastMath.DEG_TO_RAD);
-        flyCamSpotLight.setSpotInnerAngle(10 * FastMath.DEG_TO_RAD);
-        simpleApp.getRootNode().addLight(flyCamSpotLight);
-
-        initialTime = System.currentTimeMillis();
-        initialTime2 = System.currentTimeMillis();
-
-        /* Background music */
-        AudioNode music = new AudioNode(simpleApp.getAssetManager(), "Sounds/caveTheme.ogg", true);
-        music.setPositional(false);
-        music.play();
-
-        initSpatials();
-        initControls(); // done with setup. Game begins
+    }
+    
+    private void initCameraLighting()
+    {
+        cameraLighting = new SpotLight();
+        cameraLighting.setColor(ColorRGBA.Orange.mult(5f));
+        cameraLighting.setSpotRange(1000);
+        cameraLighting.setSpotOuterAngle(15 * FastMath.DEG_TO_RAD);
+        cameraLighting.setSpotInnerAngle(10 * FastMath.DEG_TO_RAD);
+        
+        rootNode.addLight(cameraLighting);
+        updateCameraLighting();
+    }
+    
+    private void updateCameraLighting()
+    {
+        cameraLighting.setDirection(camera.getDirection());
+        cameraLighting.setPosition(camera.getLocation());
     }
 
-    /**
-     * Attaches main spatials to the scene.
-     */
-    private void initSpatials()
+    private void initGameObjects()
     {
-        /* Add teleporter but culled until timer ends (see update()) */
-        teleporter = (Node) simpleApp.getAssetManager().loadModel("Models/teleporter.j3o");
-        teleporter.setLocalTranslation(Vector3f.UNIT_XYZ);
-        Material mat = new Material(simpleApp.getAssetManager(),
-                "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("DiffuseMap", simpleApp.getAssetManager().
-                loadTexture("Textures/teleporter/teleporterDiffuse.png"));
-        mat.setTexture("NormalMap", simpleApp.getAssetManager().
-                loadTexture("Textures/teleporter/teleporterNormal.png"));
-        mat.setTexture("SpecularMap", simpleApp.getAssetManager().
-                loadTexture("Textures/teleporter/teleporterSpecular.png"));
-        mat.setTexture("GlowMap", simpleApp.getAssetManager().
-                loadTexture("Textures/teleporter/teleporterGlow.png"));
-        teleporter.setMaterial(mat);
-        teleporter.scale(10);
-        teleporter.move(-230, 0, 0);
-        teleporter.setCullHint(Spatial.CullHint.Always);
-        simpleApp.getRootNode().attachChild(teleporter);
+        caveSkyBox = new SkyBox(assetManager, rootNode);
+        
+        caveFloor = new Floor(assetManager, rootNode);
+        
+        caveWall1 = new Wall(assetManager, rootNode, new Vector3f(-50, 0, 250));
+        caveWall2 = new Wall(assetManager, rootNode, new Vector3f(50, 0, 250));
+        
+        teleporter = new Teleporter(assetManager, rootNode, new Vector3f(-230, 0, 0));
+        teleporter.hide();
 
-        /* Add skybox */
-        simpleApp.getRootNode().attachChild(SkyFactory.createSky(simpleApp.getAssetManager(),
-                             simpleApp.getAssetManager().loadTexture("Textures/skybox/caveLeft.png"),
-                             simpleApp.getAssetManager().loadTexture("Textures/skybox/caveRight.png"),
-                             simpleApp.getAssetManager().loadTexture("Textures/skybox/caveFront.png"),
-                             simpleApp.getAssetManager().loadTexture("Textures/skybox/caveBack.png"),
-                             simpleApp.getAssetManager().loadTexture("Textures/skybox/caveTop.png"),
-                             simpleApp.getAssetManager().loadTexture("Textures/skybox/caveDown.png")));
-
-        /* Cave-like floor */
-        mesh.scaleTextureCoordinates(new Vector2f(8,8));
-        Geometry floor = new Geometry("floor", mesh);
-        Material floorMaterial = new Material(simpleApp.getAssetManager(),
-                "Common/MatDefs/Light/Lighting.j3md");
-        floorMaterial.setTexture("DiffuseMap", simpleApp.getAssetManager().
-                loadTexture("Textures/floorDiffuse.png"));
-        floorMaterial.getTextureParam("DiffuseMap").getTextureValue().
-                setWrap(WrapMode.Repeat);
-        floor.setMaterial(floorMaterial);
-        floor.setLocalScale(270f, 0.1f, 270f);
-        floor.setLocalTranslation(0f, 0f, 0f);
-        simpleApp.getRootNode().attachChild(floor);
-
-        /* Add entrance walls. Purely decorative and may be improved. */
-        simpleApp.getRootNode().attachChild(getWall(new Vector3f(-50, 0, 250)));
-        simpleApp.getRootNode().attachChild(getWall(new Vector3f(50, 0, 250)));
-
-         /* Add the player's "home" base. If enemies reach base, game over. */
-        Geometry base = getPlayerBase(new Vector3f(0f, 0f, 0f));
-        base.setName("base");
-        base.setLocalScale(6);
-        base.setLocalRotation(new Quaternion().
-                              fromAngleAxis(FastMath.DEG_TO_RAD * 90f,
-                                            Vector3f.UNIT_X));
-        simpleApp.getRootNode().attachChild(base);
-
-        /* Attach nodes to root */
-        /* --------------------------- */
-        simpleApp.getRootNode().attachChild(beamNode);
-        collidable.attachChild(towerNode);
-        collidable.attachChild(enemyNode);
-        simpleApp.getRootNode().attachChild(collidable);
-        /* --------------------------- */
+        homeBase = new PlayerBase(assetManager, rootNode);
+        homeBase.size(6);
+        homeBase.rotate(new Quaternion().fromAngleAxis(FastMath.DEG_TO_RAD * 90f, Vector3f.UNIT_X));
+    }
+    
+    private void attachNodes()
+    {
+        rootNode.attachChild(beamNode);
+        rootNode.attachChild(towerNode);
+        rootNode.attachChild(enemyNode);
+    }
+    
+    private void setMusicAndSound()
+    {
+        Music.setAssetManager(assetManager);
+        SFX.setAssetManager(assetManager);
+        Music.playTheme();
     }
 
-    /**
-     * Initializes input controls.
-     */
-    private void initControls()
+
+    private void setPlayerControls()
     {
-        simpleApp.getInputManager().addMapping(MAPPING_GROW,
-                                               new KeyTrigger(KeyInput.KEY_1));
-        simpleApp.getInputManager().addMapping(MAPPING_SHRINK,
-                                               new KeyTrigger(KeyInput.KEY_2));
-        simpleApp.getInputManager().addMapping(MAPPING_ADD_TOWER,
-                                               new KeyTrigger(KeyInput.KEY_5));
-        simpleApp.getInputManager().addListener(actionListener,
-                                                MAPPING_GROW, MAPPING_SHRINK, MAPPING_ADD_TOWER);
+        inputManager.addMapping(TOWER_ADD, new KeyTrigger(KeyInput.KEY_5));
+        inputManager.addListener(actionListener, TOWER_ADD);
+        
+        simpleApp.getFlyByCamera().setMoveSpeed(50);
     }
 
     /**
@@ -217,148 +212,117 @@ public class GameRunningState extends AbstractAppState
      */
     private ActionListener actionListener = new ActionListener() {
         @Override
-        public void onAction(String name, boolean isPressed, float tpf) {
-            if (name.equals(MAPPING_GROW) && !isPressed)
+        public void onAction(String name, boolean isPressed, float tpf) 
+        {
+            if (name.equals(TOWER_ADD) && !isPressed && isAddingTower)
             {
-                Spatial floor = simpleApp.getRootNode().getChild("floor");
-                float x = floor.getLocalScale().getX();
-                float z = floor.getLocalScale().getZ();
-                floor.setLocalScale(x+1, 0.1f, z+1);
-                System.out.println(floor.getLocalScale());
-            }
-
-            if (name.equals(MAPPING_SHRINK) && !isPressed)
-            {
-                Spatial floor = simpleApp.getRootNode().getChild("floor");
-                float x = floor.getLocalScale().getX();
-                float z = floor.getLocalScale().getZ();
-                floor.setLocalScale(x-1, 0.1f, z-1);
-                System.out.println(floor.getLocalScale());
-            }
-
-            if (name.equals(MAPPING_ADD_TOWER) && !isPressed && isAddingTower)
-            {
-                float x = simpleApp.getCamera().getLocation().getX();
-                float z = simpleApp.getCamera().getLocation().getZ();
+                Spatial tower;
+                
+                Vector3f towerLocation = new Vector3f(camera.getLocation().getX(), 0, camera.getLocation().getZ());
 
                 switch (gui.getSelectedTower())
                 {
                     case "laserTower":
-                        towerNode.attachChild(getLaserTower(new Vector3f(x, 0, z)));
+                        tower = Tower.generate(assetManager, Tower.LASER);
                         break;
                     case "lightTower":
-                        towerNode.attachChild(getLightTower(new Vector3f(x, 0, z)));
+                        tower = Tower.generate(assetManager, Tower.LIGHT);
                         break;
                     default:
                         gui.setSelectedTower("");
                         isAddingTower = false;
                         return;
                 }
-                AudioNode setTower = new AudioNode(simpleApp.getAssetManager(), "Sounds/setTower2.ogg", false);
-                setTower.setPositional(false);
-                setTower.play();
+                
+                tower.setLocalTranslation(towerLocation);
+                tower.addControl(new TowerControl(stateManager.getState(GameRunningState.class)));
+                towerNode.attachChild(tower);
+                SFX.playSettingTower();
+                
                 decreaseBudget(10);
                 gui.setSelectedTower("");
+                
                 isAddingTower = false;
             }
         }
     };
 
-    private Geometry getWall(Vector3f location)
+    @Override
+    public void update(float tpf) 
     {
-        Geometry wall = (Geometry) simpleApp.getAssetManager().loadModel("Models/wall.j3o");
-        wall.setName("wall");
-        TangentBinormalGenerator.generate(wall);
-        Material mat = new Material(simpleApp.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("DiffuseMap", simpleApp.getAssetManager().loadTexture("Textures/wall/wallDiffuse.png"));
-        mat.setTexture("NormalMap", simpleApp.getAssetManager().loadTexture("Textures/wall/wallNormal.png"));
-        mat.setTexture("SpecularMap", simpleApp.getAssetManager().loadTexture("Textures/wall/wallSpecular.png"));
-        wall.setMaterial(mat);
-        wall.setLocalTranslation(location);
-        wall.setLocalScale(10, 5, 5);
-        return wall;
+        if (camera.getLocation().getY() < 1.7f)
+            camera.setLocation(new Vector3f(camera.getLocation().getX(), 1.7f, camera.getLocation().getZ()));
+
+        if (isGamePaused)
+            return;
+
+        if (isGameOver)
+        {
+            JOptionPane.showMessageDialog(null, "Game Over"); // NOTE: Temporary; better way later
+            stateManager.detach(this);
+            return;
+        }
+
+        if (isAddingTower)
+        {
+            setAmbientColor(ColorRGBA.Magenta);
+            cameraLighting.setDirection(camera.getDirection());
+            cameraLighting.setPosition(camera.getLocation());
+            return;
+        }
+
+        setAmbientColor(ColorRGBA.Gray);
+
+        updateCameraLighting();
+
+        currentTime = System.currentTimeMillis();
+
+        if (currentTime - initialTime >= 5000)
+        {
+            Spider spider = new Spider(assetManager, enemyNode);
+            spider.move(enemyLocations[generator.nextInt(3)]);
+            spider.addEnemyControl(new EnemyControl(this));
+            spider.enableAnimation();
+
+            if (isGhostAllowed)
+            {
+                Ghost ghost = new Ghost(assetManager, enemyNode);
+                ghost.move(new Vector3f(-230, 5, 0));
+                ghost.addEnemyControl(new EnemyControl(this));
+            }
+
+            initialTime = System.currentTimeMillis();
+        }
+
+        currentTime2 = System.currentTimeMillis();
+
+        if (currentTime2 - initialTime2 >= 30000 && !isGhostAllowed)
+        {
+            isGhostAllowed = true;
+
+            teleporter.show();
+
+            AudioNode teleport = new AudioNode(assetManager, "Sounds/teleport.wav", false);
+            teleport.setPositional(false);
+            teleport.play();
+        }
+
+        timerBudget += tpf;
+        timerBeam += tpf;
+
+        if (timerBudget > 1000 * tpf)
+        {
+            increaseBudget(1);
+            timerBudget = 0;
+        }
+
+        if (timerBeam > 75 * tpf)
+        {
+            beamNode.detachAllChildren();
+            timerBeam = 0;
+        }
     }
 
-    /**
-     * Gets the geometry object that represents the player's base.
-     * @param location
-     */
-    public Geometry getPlayerBase(Vector3f location)
-    {
-        Geometry base = (Geometry) simpleApp.getAssetManager().loadModel("Models/base.j3o");
-        Material mat = new Material(simpleApp.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("DiffuseMap", simpleApp.getAssetManager().loadTexture("Textures/base/baseDiffuse.tga"));
-        mat.setTexture("GlowMap", simpleApp.getAssetManager().loadTexture("Textures/base/baseGlow.tga"));
-        base.setMaterial(mat);
-        base.setLocalTranslation(location);
-        return base;
-    }
-
-    /**
-     * Gets the geometry object that represents one of the towers.
-     * @param location
-     */
-    public Geometry getLaserTower(Vector3f location)
-    {
-        Geometry tower = (Geometry) simpleApp.getAssetManager().loadModel("Models/tower.j3o");
-
-        TangentBinormalGenerator.generate(tower);
-
-        Material mat = new Material(simpleApp.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("DiffuseMap", simpleApp.getAssetManager().loadTexture("Textures/tower/towerDiffuse.png"));
-        mat.setTexture("NormalMap", simpleApp.getAssetManager().loadTexture("Textures/tower/towerNormal.png"));
-        mat.setTexture("SpecularMap", simpleApp.getAssetManager().loadTexture("Textures/tower/towerSpecular.png"));
-        mat.setTexture("GlowMap", simpleApp.getAssetManager().loadTexture("Textures/tower/towerGlow.png"));
-        mat.setColor("GlowColor", ColorRGBA.White);
-        mat.setFloat("Shininess", 50);
-
-        tower.setMaterial(mat);
-        tower.setLocalTranslation(location);
-        tower.scale(2);
-        tower.setUserData("damage", 1);
-        tower.setUserData("type", "laser");
-        tower.setName("tower" + towerID);
-        tower.addControl(new TowerControl(this));
-
-        towerID++;
-
-        return tower;
-    }
-
-    /**
-     * Gets the geometry object that represents one of the towers.
-     * @param location
-     */
-    public Geometry getLightTower(Vector3f location)
-    {
-        Geometry tower = (Geometry) simpleApp.getAssetManager().loadModel("Models/tower.j3o");
-
-        Material mat = new Material(simpleApp.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("DiffuseMap", simpleApp.getAssetManager().loadTexture("Textures/tower/towerDiffuse.png"));
-        mat.setTexture("NormalMap", simpleApp.getAssetManager().loadTexture("Textures/tower/towerNormal.png"));
-        mat.setTexture("SpecularMap", simpleApp.getAssetManager().loadTexture("Textures/tower/towerSpecular.png"));
-        mat.setTexture("GlowMap", simpleApp.getAssetManager().loadTexture("Textures/tower/towerGlow2.png"));
-        mat.setColor("GlowColor", ColorRGBA.White);
-        mat.setFloat("Shininess", 50);
-
-        tower.setMaterial(mat);
-        tower.setLocalTranslation(location);
-        tower.scale(2);
-        tower.setUserData("damage", 1);
-        tower.setUserData("type", "light");
-        tower.setName("tower" + towerID);
-        tower.addControl(new TowerControl(this));
-
-        towerID++;
-
-        return tower;
-    }
-
-    /**
-     * Fetches one of the nodes from the scene.
-     * (Precondition: Only "beam", "tower" and "enemy" nodes are available now)
-     * @param desiredNode
-     */
     public Node getNode(String desiredNode)
     {
         if (desiredNode == null)
@@ -382,91 +346,7 @@ public class GameRunningState extends AbstractAppState
 
         return node;
     }
-
-    /**
-     * Interacts with update loop. Handle game events here.
-     * @param tpf
-     */
-    @Override
-    public void update(float tpf) {
-        if (simpleApp.getCamera().getLocation().getY() < 1.7f)
-        {
-            float x = simpleApp.getCamera().getLocation().getX();
-            float z = simpleApp.getCamera().getLocation().getZ();
-            simpleApp.getCamera().setLocation(new Vector3f(x, 1.7f, z));
-        }
-
-        if (isGamePaused)
-            return;
-
-        if (isGameOver)
-        {
-            JOptionPane.showMessageDialog(null, "Game Over"); // NOTE: Temporary; better way later
-            simpleApp.getStateManager().detach(this);
-            return;
-        }
-
-        if (isAddingTower)
-        {
-            setAmbientColor(ColorRGBA.Magenta);
-            flyCamSpotLight.setDirection(simpleApp.getCamera().getDirection());
-            flyCamSpotLight.setPosition(simpleApp.getCamera().getLocation());
-            return;
-        }
-
-        setAmbientColor(ColorRGBA.Gray);
-
-        flyCamSpotLight.setDirection(simpleApp.getCamera().getDirection());
-        flyCamSpotLight.setPosition(simpleApp.getCamera().getLocation());
-
-        currentTime = System.currentTimeMillis();
-
-        if (currentTime - initialTime >= 5000)
-        {
-            Spider spider = new Spider(simpleApp.getAssetManager(), enemyNode);
-            spider.move(enemyLocations[generator.nextInt(3)]);
-            spider.addEnemyControl(new EnemyControl(this));
-            spider.enableAnimation();
-
-            if (isGhostAllowed)
-            {
-                Ghost ghost = new Ghost(simpleApp.getAssetManager(), enemyNode);
-                ghost.move(new Vector3f(-230, 5, 0));
-                ghost.addEnemyControl(new EnemyControl(this));
-            }
-
-            initialTime = System.currentTimeMillis();
-        }
-
-        currentTime2 = System.currentTimeMillis();
-
-        if (currentTime2 - initialTime2 >= 30000 && !isGhostAllowed)
-        {
-            isGhostAllowed = true;
-
-            teleporter.setCullHint(Spatial.CullHint.Inherit);
-
-            AudioNode teleport = new AudioNode(simpleApp.getAssetManager(), "Sounds/teleport.wav", false);
-            teleport.setPositional(false);
-            teleport.play();
-        }
-
-        timerBudget += tpf;
-        timerBeam += tpf;
-
-        if (timerBudget > 1000*tpf)
-        {
-            increaseBudget(1);
-            timerBudget = 0;
-        }
-
-        if (timerBeam > 75 * tpf)
-        {
-            beamNode.detachAllChildren();
-            timerBeam = 0;
-        }
-    }
-
+    
     public int getScore()
     {
         return score;
@@ -501,28 +381,16 @@ public class GameRunningState extends AbstractAppState
         budget += amount;
     }
 
-    /**
-     * Gets the material for the tower's beam. Useful for controls such as
-     * TowerControl.java, who have no explicit access to the asset manager.
-     * @return an unshaded material definition
-     */
-    public Material getLineMaterial()
+    public Material getUnshadedMaterial()
     {
-        return new Material(simpleApp.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        return new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     }
 
-    /**
-     * Changes the game's overall scene color. Useful for setting a new type of atmosphere.
-     * @param color - the new color for the atmosphere
-     */
     public void setAmbientColor(ColorRGBA color)
     {
         atmosphere.setColor(color.mult(5f));
     }
 
-    /**
-     * Notify whether or not the player is adding a tower.
-     */
     public void setPlayerAddingTower(boolean isPlayerAddingTower)
     {
         this.isAddingTower = isPlayerAddingTower;
@@ -548,13 +416,10 @@ public class GameRunningState extends AbstractAppState
         isGameOver = shouldGameBeOver;
     }
 
-    /**
-     * Called automatically when this state is detached.
-     */
     @Override
     public void cleanup()
     {
-        simpleApp.getStateManager().detach(gui);
+        stateManager.detach(gui);
         enemyNode.detachAllChildren();
         beamNode.detachAllChildren();
         towerNode.detachAllChildren();

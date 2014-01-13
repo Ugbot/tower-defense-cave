@@ -1,0 +1,10 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Textures/teleporter/teleporterDiffuse.png
+        GlowMap : Textures/teleporter/teleporterGlow.png
+        NormalMap : Textures/teleporter/teleporterNormal.png
+        SpecularMap : Textures/teleporter/teleporterSpecular.png
+     }
+    AdditionalRenderState {
+    }
+}

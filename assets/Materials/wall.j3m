@@ -1,0 +1,9 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Flip Textures/wall/wallDiffuse.png
+        SpecularMap : Flip Textures/wall/wallSpecular.png
+        NormalMap : Flip Textures/wall/wallNormal.png
+     }
+    AdditionalRenderState {
+    }
+}

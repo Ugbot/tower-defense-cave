@@ -55,7 +55,7 @@ public class TowerControl extends AbstractControl
     {
         Line lineMesh = new Line(start, end);
         Geometry line = new Geometry("line", lineMesh);
-        Material mat = currentGameState.getLineMaterial();
+        Material mat = currentGameState.getUnshadedMaterial();
 
         if (spatial.getUserData("type").equals("laser"))
             mat.setColor("Color", ColorRGBA.Red);
