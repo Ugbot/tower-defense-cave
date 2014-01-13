@@ -21,7 +21,8 @@ import com.jme3.ui.Picture;
  * Main Interface (GUI)
  * @author Abner Coimbre
  */
-public class InterfaceAppState extends AbstractAppState {
+public class InterfaceAppState extends AbstractAppState 
+{
     private GameRunningState currentGameState;
     private SimpleApplication simpleApp;
     
@@ -48,7 +49,8 @@ public class InterfaceAppState extends AbstractAppState {
     private static final String MAPPING_EXIT_MENU = "toggle exit menu";
     private String selectedTower = "";
     
-    public InterfaceAppState(GameRunningState state) {
+    public InterfaceAppState(GameRunningState state) 
+    {
         currentGameState = state;
     }
     
@@ -58,7 +60,8 @@ public class InterfaceAppState extends AbstractAppState {
      * @param app 
      */
     @Override
-    public void initialize(AppStateManager stateManager, Application app) {
+    public void initialize(AppStateManager stateManager, Application app) 
+    {
         super.initialize(stateManager, app);
         
         simpleApp = (SimpleApplication) app;
@@ -67,27 +70,34 @@ public class InterfaceAppState extends AbstractAppState {
         simpleApp.getInputManager().addMapping(MAPPING_MOVING_RIGHT, new KeyTrigger(KeyInput.KEY_3));
         simpleApp.getInputManager().addMapping(MAPPING_MOVING_LEFT, new KeyTrigger(KeyInput.KEY_2));
         simpleApp.getInputManager().addMapping(MAPPING_EXIT_MENU, new KeyTrigger(KeyInput.KEY_0));
+        simpleApp.getInputManager().addMapping("inventory", new KeyTrigger(KeyInput.KEY_1));
         
         simpleApp.getInputManager().addListener(actionListener, 
                                                 MAPPING_SELECTED, 
                                                 MAPPING_MOVING_RIGHT,
                                                 MAPPING_MOVING_LEFT,
-                                                MAPPING_EXIT_MENU);
+                                                MAPPING_EXIT_MENU,
+                                                "inventory");
     }
     
     @Override
-    public void update(float tpf) {
+    public void update(float tpf) 
+    {
         // TODO: Add the following block of "exit" code as a control class 
         Spatial exit = simpleApp.getGuiNode().getChild("exit");
-        if (exit != null) {
-            if (!exit.getLocalTranslation().equals(new Vector3f(160, 50, -1)) && !exitMenuExiting) {
+        if (exit != null) 
+        {
+            if (!exit.getLocalTranslation().equals(new Vector3f(160, 50, -1)) && !exitMenuExiting) 
+            {
                float exitY = exit.getLocalTranslation().getY(); 
                exit.setLocalTranslation(160, exitY-10f, -1);
                return;
             }
             
-            if (exitMenuExiting) {
-                if (!exit.getLocalTranslation().equals(new Vector3f(160, 610, -1))) {
+            if (exitMenuExiting) 
+            {
+                if (!exit.getLocalTranslation().equals(new Vector3f(160, 610, -1))) 
+                {
                     float exitY = exit.getLocalTranslation().getY();
                     exit.setLocalTranslation(160, exitY+20f, -1);
                     return;
@@ -105,13 +115,16 @@ public class InterfaceAppState extends AbstractAppState {
         
         simpleApp.getRootNode().getChild("enemy node").collideWith(ray, results);
         
-        if (results.size() > 0) {
-            if (results.getClosestCollision().getGeometry().getName().startsWith("spider")) {
+        if (results.size() > 0) 
+        {
+            if (results.getClosestCollision().getGeometry().getName().startsWith("spider")) 
+            {
                 canSeeSpiderInfo = true; // see ActionListener()
                 return;
             }
             
-            if (results.getClosestCollision().getGeometry().getName().startsWith("ghost")) {
+            if (results.getClosestCollision().getGeometry().getName().startsWith("ghost")) 
+            {
                 canSeeGhostInfo = true;
                 return;
             }
@@ -122,19 +135,24 @@ public class InterfaceAppState extends AbstractAppState {
     
     private ActionListener actionListener = new ActionListener() {
         @Override
-        public void onAction(String name, boolean isPressed, float tpf) {
-            if (name.equals(MAPPING_SELECTED) && !isPressed && !currentGameState.isPlayerAddingTower()) {
-                if (canSeeSpiderInfo) {
+        public void onAction(String name, boolean isPressed, float tpf) 
+        {
+            if (name.equals(MAPPING_SELECTED) && !isPressed && !currentGameState.isPlayerAddingTower()) 
+            {
+                if (canSeeSpiderInfo) 
+                {
                     toggleSpiderInfo();
                     return;
                 }
                 
-                if (canSeeGhostInfo) {
+                if (canSeeGhostInfo) 
+                {
                     toggleGhostInfo();
                     return;
                 }
 
-                if (laserTowerSelected) {
+                if (laserTowerSelected) 
+                {
                     toggleInventory();
                     currentGameState.setPlayerAddingTower(true);
                     setSelectedTower("laserTower");
@@ -145,7 +163,8 @@ public class InterfaceAppState extends AbstractAppState {
                     return;
                 }
                 
-                if (lightTowerSelected) {
+                if (lightTowerSelected) 
+                {
                     toggleInventory();
                     setSelectedTower("lightTower");
                     currentGameState.setPlayerAddingTower(true);
@@ -155,17 +174,21 @@ public class InterfaceAppState extends AbstractAppState {
                     setTower.play();
                     return;
                 }
-                
-                toggleInventory();
             }
             
-            if (name.equals(MAPPING_MOVING_RIGHT) && !isPressed) {
-                if (laserTowerSelected) {
+            if (name.equals("inventory") && !isPressed)
+                toggleInventory();
+            
+            if (name.equals(MAPPING_MOVING_RIGHT) && !isPressed) 
+            {
+                if (laserTowerSelected) 
+                {
                     highlightInventoryOption("lightTower");
                     return;
                 }
                 
-                if (lightTowerSelected) {
+                if (lightTowerSelected) 
+                {
                     highlightInventoryOption("unknownTower");
                     return;
                 }
@@ -173,13 +196,16 @@ public class InterfaceAppState extends AbstractAppState {
                 highlightInventoryOption("laserTower");
             }
             
-            if (name.equals(MAPPING_MOVING_LEFT) && !isPressed) {
-                if (lightTowerSelected) {
+            if (name.equals(MAPPING_MOVING_LEFT) && !isPressed) 
+            {
+                if (lightTowerSelected) 
+                {
                     highlightInventoryOption("laserTower");
                     return;
                 }
                 
-                if (unknownTowerSelected) {
+                if (unknownTowerSelected) 
+                {
                     highlightInventoryOption("lightTower");
                     return;
                 }
@@ -187,17 +213,18 @@ public class InterfaceAppState extends AbstractAppState {
                 highlightInventoryOption("none");
             }
             
-            if (name.equals(MAPPING_EXIT_MENU) && !isPressed) {
+            if (name.equals(MAPPING_EXIT_MENU) && !isPressed)
                 toggleExit();
-            }
         }
     };
     
     /**
      * Displays spider's info on screen.
      */
-    private void toggleSpiderInfo() {
-        if (spiderInfoToggled) {
+    private void toggleSpiderInfo() 
+    {
+        if (spiderInfoToggled) 
+        {
             simpleApp.getGuiNode().getChild("spiderInfo").removeFromParent();
             currentGameState.setAmbientColor(ColorRGBA.Gray);
             currentGameState.setPause(false);
@@ -223,8 +250,10 @@ public class InterfaceAppState extends AbstractAppState {
     /**
      * Displays spider's info on screen.
      */
-    private void toggleGhostInfo() {
-        if (ghostInfoToggled) {
+    private void toggleGhostInfo() 
+    {
+        if (ghostInfoToggled) 
+        {
             simpleApp.getGuiNode().getChild("ghostInfo").removeFromParent();
             currentGameState.setAmbientColor(ColorRGBA.Gray);
             currentGameState.setPause(false);
@@ -251,17 +280,18 @@ public class InterfaceAppState extends AbstractAppState {
     /**
      * Displays inventory on screen.
      */
-    private void toggleInventory() {
+    private void toggleInventory() 
+    {
         /* Toggle off if it was already on */
-        if (inventoryToggled) {
+        if (inventoryToggled) 
+        {
             /* Remove budget info */
             simpleApp.getGuiNode().getChild("budgetIcon").removeFromParent();
             simpleApp.getGuiNode().getChild("budgetText").removeFromParent();
             
             /* Remove inventory options */
-            for (int i = 0; i < optionNames.length; i++) {
+            for (int i = 0; i < optionNames.length; i++)
                 simpleApp.getGuiNode().getChild(optionNames[i]).removeFromParent();
-            }
             
             setLaserTowerText(false); // TODO: Add a setText(optionNames[i], false) instead (?)
             setLightTowerText(false);
@@ -303,8 +333,10 @@ public class InterfaceAppState extends AbstractAppState {
     /**
      * Place available inventory options on screen.
      */
-    private void addInventoryOptions() {
-        for (int i = 0; i < optionNames.length; i++) {
+    private void addInventoryOptions() 
+    {
+        for (int i = 0; i < optionNames.length; i++) 
+        {
             Picture option = new Picture(optionNames[i]);
             option.setImage(simpleApp.getAssetManager(), 
                             "Interface/" + optionNames[i] + ".png", 
@@ -326,10 +358,12 @@ public class InterfaceAppState extends AbstractAppState {
      * the inventory menu will dissappear.]
      * @param desiredOption the name of the desired inventory option (e.g. "lightTower")
      */
-    private void highlightInventoryOption(String desiredOption) {
+    private void highlightInventoryOption(String desiredOption) 
+    {
         Picture option;
         
-        switch (desiredOption) {
+        switch (desiredOption) 
+        {
             case "laserTower":
                 resetInventoryOptions();
                 option = (Picture) simpleApp.getGuiNode().getChild(desiredOption);
@@ -362,8 +396,10 @@ public class InterfaceAppState extends AbstractAppState {
         }
     }
     
-    private void setLaserTowerText(boolean canSetText) {
-        if (canSetText) {
+    private void setLaserTowerText(boolean canSetText) 
+    {
+        if (canSetText) 
+        {
             BitmapFont myFont = simpleApp.getAssetManager().loadFont("Interface/Fonts/PoorRichardBig.fnt");
             BitmapText laserTowerText = new BitmapText(myFont);
             laserTowerText.setName("laserTowerText");
@@ -387,18 +423,18 @@ public class InterfaceAppState extends AbstractAppState {
          * TODO: Change the code so that this conditional isn't needed.
          */
         Spatial text = simpleApp.getGuiNode().getChild("laserTowerText");
-        if (text != null) {
+        if (text != null)
             text.removeFromParent();
-        }
         
         Spatial textIcon = simpleApp.getGuiNode().getChild("budgetSmallIcon1");
-        if (textIcon != null) {
+        if (textIcon != null)
             textIcon.removeFromParent();
-        }
     }
     
-    private void setLightTowerText(boolean canSetText) {
-        if (canSetText) {
+    private void setLightTowerText(boolean canSetText) 
+    {
+        if (canSetText) 
+        {
             BitmapFont myFont = simpleApp.getAssetManager().loadFont("Interface/Fonts/PoorRichardBig.fnt");
             BitmapText lightTowerText = new BitmapText(myFont);
             lightTowerText.setName("lightTowerText");
@@ -422,18 +458,18 @@ public class InterfaceAppState extends AbstractAppState {
          * TODO: Change the code so that this conditional isn't needed.
          */
         Spatial text = simpleApp.getGuiNode().getChild("lightTowerText");
-        if (text != null) {
+        if (text != null)
             text.removeFromParent();
-        }
         
         Spatial textIcon = simpleApp.getGuiNode().getChild("budgetSmallIcon2");
-        if (textIcon != null) {
+        if (textIcon != null)
             textIcon.removeFromParent();
-        }
     }
     
-    private void setUnknownTowerText(boolean canSetText) {
-        if (canSetText) {
+    private void setUnknownTowerText(boolean canSetText) 
+    {
+        if (canSetText) 
+        {
             BitmapFont myFont = simpleApp.getAssetManager().loadFont("Interface/Fonts/PoorRichardBig.fnt");
             BitmapText unknownTowerText = new BitmapText(myFont);
             unknownTowerText.setName("unknownTowerText");
@@ -457,22 +493,22 @@ public class InterfaceAppState extends AbstractAppState {
          * TODO: Change the code so that this conditional isn't needed.
          */
         Spatial text = simpleApp.getGuiNode().getChild("unknownTowerText");
-        if (text != null) {
+        if (text != null)
             text.removeFromParent();
-        }
         
         Spatial textIcon = simpleApp.getGuiNode().getChild("budgetSmallIcon3");
-        if (textIcon != null) {
+        if (textIcon != null)
             textIcon.removeFromParent();
-        }
     }
     
     /**
      * Doesn't highlight any more options. If player presses enter, the inventory
      * menu will quit.
      */
-    private void resetInventoryOptions() {
-        for (int i = 0; i < optionNames.length; i++) {
+    private void resetInventoryOptions() 
+    {
+        for (int i = 0; i < optionNames.length; i++) 
+        {
             Picture option = (Picture) simpleApp.getGuiNode().getChild(optionNames[i]);
             option.setImage(simpleApp.getAssetManager(), "Interface/" + optionNames[i] + ".png", true);
         }
@@ -485,18 +521,21 @@ public class InterfaceAppState extends AbstractAppState {
         unknownTowerSelected = false;
     }
     
-    public void setSelectedTower(String tower) {
+    public void setSelectedTower(String tower) 
+    {
         selectedTower = tower;
     }
     
-    public String getSelectedTower() {
+    public String getSelectedTower() 
+    {
         return selectedTower;
     }
     
     /**
      * Shows the current budget on the screen.
      */
-    private void showBudget() {
+    private void showBudget() 
+    {
         Picture budgetIcon = new Picture("budgetIcon");
         budgetIcon.setImage(simpleApp.getAssetManager(), "Interface/budget.png", true);
         budgetIcon.setWidth(64);
@@ -516,8 +555,10 @@ public class InterfaceAppState extends AbstractAppState {
     /**
      * Displays exit menu on screen.
      */
-    private void toggleExit() {
-        if (exitToggled) {
+    private void toggleExit() 
+    {
+        if (exitToggled) 
+        {
             exitMenuExiting = true;
             currentGameState.setAmbientColor(ColorRGBA.Gray);
             currentGameState.setPause(false);

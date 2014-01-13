@@ -195,8 +195,8 @@ public final class GameRunningState extends AbstractAppState
     private void setMusicAndSound()
     {
         Music.setAssetManager(assetManager);
-        SFX.setAssetManager(assetManager);
         Music.playTheme();
+        SFX.setAssetManager(assetManager);
     }
 
 
