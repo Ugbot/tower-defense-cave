@@ -59,11 +59,6 @@ public final class GameRunningState extends AbstractAppState
     private Teleporter teleporter;
     private PlayerBase homeBase;
     
-    private boolean isGameOver = false;
-    private boolean isGamePaused = false;
-    private boolean isGhostAllowed = false;
-    private boolean isAddingTower = false;
-
     private AmbientLight atmosphere;
     private SpotLight cameraLighting;
     
@@ -74,6 +69,11 @@ public final class GameRunningState extends AbstractAppState
     private static final Vector3f[] enemyLocations = {new Vector3f(0f, 1f, 269),
                                                       new Vector3f(3f, 1f, 267),
                                                       new Vector3f(-2f, 1f, 269)};
+    
+    private boolean isGameOver = false;
+    private boolean isGamePaused = false;
+    private boolean isGhostAllowed = false;
+    private boolean isAddingTower = false;
 
     private int score = 0;
     private int budget = 50;
