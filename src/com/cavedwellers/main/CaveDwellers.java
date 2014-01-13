@@ -11,7 +11,7 @@ import com.jme3.system.AppSettings;
  *
  * @author Abner Coimbre (github: @abner7)
  */
-public class Main extends SimpleApplication
+public class CaveDwellers extends SimpleApplication
 {
     public static void main(String[] args)
     {
@@ -20,7 +20,7 @@ public class Main extends SimpleApplication
         screenSettings.setResolution(1280, 600);
         screenSettings.setFullscreen(false);
 
-        Main app = new Main();
+        CaveDwellers app = new CaveDwellers();
         app.setSettings(screenSettings);
         app.setShowSettings(false);
         app.setPauseOnLostFocus(true);
