@@ -268,13 +268,11 @@ public final class GameRunningState extends AbstractAppState
         if (isAddingTower)
         {
             setAmbientColor(ColorRGBA.Magenta);
-            cameraLighting.setDirection(camera.getDirection());
-            cameraLighting.setPosition(camera.getLocation());
+            updateCameraLighting();
             return;
         }
 
         setAmbientColor(ColorRGBA.Gray);
-
         updateCameraLighting();
 
         currentTime = System.currentTimeMillis();
