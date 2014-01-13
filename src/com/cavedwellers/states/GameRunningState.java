@@ -26,7 +26,11 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.Random;
+import java.util.concurrent.locks.LockSupport;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import jme3tools.optimize.GeometryBatchFactory;
 
 /**
  * This is an app state (http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states).
@@ -47,6 +51,7 @@ public final class GameRunningState extends AbstractAppState
     private Camera camera;
     private Node rootNode;
     
+    private Node sceneNode = new Node("scene node");
     private Node beamNode = new Node("beam node");
     private Node towerNode = new Node("tower node");
     private Node enemyNode = new Node("enemy node");
@@ -103,7 +108,7 @@ public final class GameRunningState extends AbstractAppState
 
         initCameraLighting();
 
-        initGameObjects();
+        initStaticObjects();
         
         attachNodes();
         
@@ -168,25 +173,28 @@ public final class GameRunningState extends AbstractAppState
         cameraLighting.setPosition(camera.getLocation());
     }
 
-    private void initGameObjects()
+    private void initStaticObjects()
     {
+        caveFloor = new Floor(assetManager, sceneNode);
+        
+        caveWall1 = new Wall(assetManager, sceneNode, new Vector3f(-50, 0, 250));
+        caveWall2 = new Wall(assetManager, sceneNode, new Vector3f(50, 0, 250));
+
+        homeBase = new PlayerBase(assetManager, sceneNode);
+        homeBase.size(6);
+        homeBase.rotate(new Quaternion().fromAngleAxis(FastMath.DEG_TO_RAD * 90f, Vector3f.UNIT_X));
+        
+        sceneNode = GeometryBatchFactory.optimize(sceneNode, true);
+        
         caveSkyBox = new SkyBox(assetManager, rootNode);
-        
-        caveFloor = new Floor(assetManager, rootNode);
-        
-        caveWall1 = new Wall(assetManager, rootNode, new Vector3f(-50, 0, 250));
-        caveWall2 = new Wall(assetManager, rootNode, new Vector3f(50, 0, 250));
         
         teleporter = new Teleporter(assetManager, rootNode, new Vector3f(-230, 0, 0));
         teleporter.hide();
-
-        homeBase = new PlayerBase(assetManager, rootNode);
-        homeBase.size(6);
-        homeBase.rotate(new Quaternion().fromAngleAxis(FastMath.DEG_TO_RAD * 90f, Vector3f.UNIT_X));
     }
     
     private void attachNodes()
     {
+        rootNode.attachChild(sceneNode);
         rootNode.attachChild(beamNode);
         rootNode.attachChild(towerNode);
         rootNode.attachChild(enemyNode);
@@ -251,6 +259,8 @@ public final class GameRunningState extends AbstractAppState
     @Override
     public void update(float tpf) 
     {
+        LockSupport.parkNanos(1000*1000);
+        
         if (camera.getLocation().getY() < 1.7f)
             camera.setLocation(new Vector3f(camera.getLocation().getX(), 1.7f, camera.getLocation().getZ()));
 
