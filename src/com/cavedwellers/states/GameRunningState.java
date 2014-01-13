@@ -9,7 +9,6 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.audio.AudioNode;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -301,10 +300,7 @@ public final class GameRunningState extends AbstractAppState
             isGhostAllowed = true;
 
             teleporter.show();
-
-            AudioNode teleport = new AudioNode(assetManager, "Sounds/teleport.wav", false);
-            teleport.setPositional(false);
-            teleport.play();
+            SFX.playTeleportAppearing();
         }
 
         timerBudget += tpf;

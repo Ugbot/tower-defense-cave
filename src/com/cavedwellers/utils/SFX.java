@@ -22,4 +22,11 @@ public final class SFX
         setTower.setPositional(false);
         setTower.play();
     }
+    
+    public static void playTeleportAppearing()
+    {
+        AudioNode teleport = new AudioNode(assetManager, "Sounds/teleport.wav", false);
+        teleport.setPositional(false);
+        teleport.play();
+    }
 }
