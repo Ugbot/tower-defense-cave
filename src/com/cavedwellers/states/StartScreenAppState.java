@@ -11,6 +11,8 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
@@ -34,7 +36,7 @@ import java.util.logging.Logger;
  * This is an app state (http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states).
  *
  * When this state is attached, it'll present an intro screen while prompting
- * the user to press enter. Once the player presses enter, this app state is detached
+ * the user to press enter. Once the player presses enter, the app state is detached
  * and GameRunningState enabled.
  * 
  * @author Abner Coimbre
@@ -59,6 +61,7 @@ public class StartScreenAppState extends AbstractAppState
     private FadeFilter fadeFilter;
     private SpotLight floorLighting;
     private AmbientLight atmosphere;
+    private Node guiNode;
     
     
     @Override
@@ -74,6 +77,7 @@ public class StartScreenAppState extends AbstractAppState
         this.flyCam = simpleApp.getFlyByCamera();
         this.inputManager = simpleApp.getInputManager();
         this.rootNode = simpleApp.getRootNode();
+        this.guiNode = simpleApp.getGuiNode();
         Music.setAssetManager(assetManager);
 
         setCamPosition();
@@ -91,6 +95,14 @@ public class StartScreenAppState extends AbstractAppState
         spiders = new LinkedList<>();
 
         Music.playIntroTheme();
+
+        BitmapFont guiFont = assetManager.loadFont("Interface/Fonts/AppleChancery.fnt");
+        BitmapText helloText = new BitmapText(guiFont, false);
+        helloText.setSize(guiFont.getCharSet().getRenderedSize());
+        helloText.setText("Cave Dwellers - Early Prototype");
+        helloText.setColor(ColorRGBA.Red);
+        helloText.setLocalTranslation(885, 500 + helloText.getLineHeight(), 0);
+        guiNode.attachChild(helloText);
 
         initialTime = System.currentTimeMillis();
     }
@@ -160,8 +172,11 @@ public class StartScreenAppState extends AbstractAppState
     public void update(float tpf)
     {
         if (hasPlayerPressedEnter)
-            if (fadeFilter.getValue() == 1)
+            if (fadeFilter.getValue() == 1) 
+            {
+                guiNode.detachAllChildren();
                 fadeFilter.fadeOut();
+            }
         
         if (fadeFilter.getValue() <= 0)
         {
@@ -176,7 +191,7 @@ public class StartScreenAppState extends AbstractAppState
         
         currentTime = System.currentTimeMillis();
 
-        if (currentTime - initialTime >= 5000)
+        if (currentTime - initialTime >= 2000)
         {
             Spider spider = new Spider(assetManager, rootNode);
             spider.move(GameRunningAppState.ENEMY_LOCATIONS[GameRunningAppState.RANDOM_GENERATOR.nextInt(3)]);

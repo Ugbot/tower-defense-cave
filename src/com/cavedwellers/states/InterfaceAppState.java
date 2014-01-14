@@ -1,5 +1,6 @@
 package com.cavedwellers.states;
 
+import com.cavedwellers.utils.Narrator;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -232,6 +233,8 @@ public class InterfaceAppState extends AbstractAppState
             currentGameState.setAmbientColor(ColorRGBA.Gray);
             currentGameState.setPause(false);
             spiderInfoToggled = false;
+            Narrator gameNarrator = new Narrator(simpleApp.getStateManager(), simpleApp.getAssetManager(), simpleApp.getGuiNode());
+            gameNarrator.talk("Oh, and by pressing <SPACE> we get access to the inventory", "Sounds/instructions3.ogg");
             return;
         }
         

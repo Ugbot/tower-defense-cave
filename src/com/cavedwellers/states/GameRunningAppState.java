@@ -101,6 +101,7 @@ public final class GameRunningAppState extends AbstractAppState
     private Narrator gameNarrator;
     private boolean hasNarratorTalkedAboutTargeting;
     private boolean hasNarratorTalkedAboutMenu;
+    private boolean isTimeToQuitGame;
 
     public GameRunningAppState()
     {
@@ -254,7 +255,9 @@ public final class GameRunningAppState extends AbstractAppState
     {
         inputManager.addMapping(TOWER_ADD, new KeyTrigger(KeyInput.KEY_RETURN));
         inputManager.addListener(actionListener, TOWER_ADD);
-        
+
+        camera.setLocation(new Vector3f(115.15856f, 4.180928f, -48.304367f));
+        camera.setRotation(new Quaternion(-0.04478231f, -0.4255097f, -0.021087218f, 0.90359914f));
         flyCam.setMoveSpeed(50);
         setCrossHairs();
     }
@@ -321,10 +324,11 @@ public final class GameRunningAppState extends AbstractAppState
         if (isGamePaused)
             return;
 
-        if (isGameOver)
+        if (isGameOver && !isTimeToQuitGame)
         {
-            JOptionPane.showMessageDialog(null, "Game Over"); // NOTE: Temporary; better way later
-            stateManager.detach(this);
+            Music.stopTheme();
+            gameNarrator.talk("A monster reached the base. Game Over.", "Sounds/rageQuit.ogg");
+            isTimeToQuitGame = true;
             return;
         }
 
@@ -359,7 +363,7 @@ public final class GameRunningAppState extends AbstractAppState
 
         currentTime2 = System.currentTimeMillis();
 
-        if (currentTime2 - initialTime2 >= 30000 && !isGhostAllowed)
+        if (currentTime2 - initialTime2 >= 45000 && !isGhostAllowed)
         {
             isGhostAllowed = true;
 
@@ -411,12 +415,8 @@ public final class GameRunningAppState extends AbstractAppState
             hasNarratorTalkedAboutTargeting = true;
         }
         
-        if (gameNarrator.hasStoppedTalking() && hasNarratorTalkedAboutTargeting && !hasNarratorTalkedAboutMenu)
-        {
-            gameNarrator.hide();
-            gameNarrator.talk("Oh, and by pressing <SPACE> we get access to the inventory", "Sounds/instructions3.ogg");
-            hasNarratorTalkedAboutMenu = true;
-        }
+        if (gameNarrator.hasStoppedTalking() && isTimeToQuitGame)
+            stateManager.detach(this);
     }
 
     public Node getNode(String desiredNode)
@@ -517,14 +517,10 @@ public final class GameRunningAppState extends AbstractAppState
     {
         setEnabled(false);
         
-        Music.stopTheme();
-        
         rootNode.removeLight(atmosphere);
         rootNode.detachAllChildren();
         
         stateManager.detach(gui);
-        
-        JOptionPane.showMessageDialog(null, "This is a very early prototype. Keep checking @ github.com/abner7/tower-defense-cave");
         System.exit(0);
     }
 }
