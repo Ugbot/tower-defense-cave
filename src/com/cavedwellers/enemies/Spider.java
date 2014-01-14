@@ -1,4 +1,4 @@
-package com.cavedwellers.objects;
+package com.cavedwellers.enemies;
 
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;

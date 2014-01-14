@@ -7,7 +7,7 @@ import com.jme3.scene.Node;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
- * Purely decorative walls
+ * A Purely Decorative Wall
  * 
  * It'll be visible on the scene as long as the given node in the constructor
  * is attached to the root node (or is the root node itself).

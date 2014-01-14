@@ -1,7 +1,10 @@
 package com.cavedwellers.states;
 
+import com.cavedwellers.enemies.Ghost;
+import com.cavedwellers.enemies.Spider;
 import com.cavedwellers.controls.TowerControl;
 import com.cavedwellers.controls.EnemyControl;
+import com.cavedwellers.controls.ForceShieldControl;
 import com.cavedwellers.objects.*;
 import com.cavedwellers.utils.*;
 import com.jme3.app.Application;
@@ -23,12 +26,10 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.Random;
-import java.util.concurrent.locks.LockSupport;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import jme3tools.optimize.GeometryBatchFactory;
 
@@ -90,6 +91,8 @@ public final class GameRunningState extends AbstractAppState
     
     private long initialTime2;
     private long currentTime2;
+    private ForceShieldControl forceShieldControl;
+    private Geometry forceShield;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app)
@@ -109,6 +112,8 @@ public final class GameRunningState extends AbstractAppState
         initCameraLighting();
 
         initStaticObjects();
+        
+        initForceShields();
         
         attachNodes();
         
@@ -192,6 +197,25 @@ public final class GameRunningState extends AbstractAppState
         teleporter.hide();
     }
     
+    private void initForceShields()
+    {
+        ForceShield[] shields = new ForceShield[4];
+        
+        Vector3f[] locations = {new Vector3f(-269.80066f, -4.1872263E-5f, 269.99808f),
+                                      new Vector3f(-269.80066f, -4.1872263E-5f, -269.99808f),
+                                      new Vector3f(-269.80066f, -4.1872263E-5f, 269.99808f),
+                                      new Vector3f(269.80066f, -4.1872263E-5f, 269.99808f)};
+
+        Quaternion YAW090   = new Quaternion().fromAngleAxis(FastMath.PI/2,   new Vector3f(0,1,0));
+        
+        for (int i = 0; i < shields.length; ++i)
+        {
+            shields[i] = new ForceShield(assetManager, rootNode, locations[i]);
+            if (i > 1)
+                shields[i].rotate(YAW090);
+        }
+    }
+    
     private void attachNodes()
     {
         rootNode.attachChild(sceneNode);
@@ -258,9 +282,7 @@ public final class GameRunningState extends AbstractAppState
 
     @Override
     public void update(float tpf) 
-    {
-        LockSupport.parkNanos(1000*1000);
-        
+    {             
         if (camera.getLocation().getY() < 1.7f)
             camera.setLocation(new Vector3f(camera.getLocation().getX(), 1.7f, camera.getLocation().getZ()));
 

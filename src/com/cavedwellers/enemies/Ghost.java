@@ -1,4 +1,4 @@
-package com.cavedwellers.objects;
+package com.cavedwellers.enemies;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;

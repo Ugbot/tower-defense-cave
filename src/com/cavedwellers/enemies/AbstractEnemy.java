@@ -1,4 +1,4 @@
-package com.cavedwellers.objects;
+package com.cavedwellers.enemies;
 
 import com.cavedwellers.controls.EnemyControl;
 import com.jme3.asset.AssetManager;
