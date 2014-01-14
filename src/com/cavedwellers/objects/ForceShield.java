@@ -1,12 +1,8 @@
 package com.cavedwellers.objects;
 
 import com.cavedwellers.controls.ForceShieldControl;
-import com.cavedwellers.states.SpatialManager;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.input.InputManager;
 import com.jme3.material.Material;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;

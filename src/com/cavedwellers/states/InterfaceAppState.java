@@ -72,13 +72,13 @@ public class InterfaceAppState extends AbstractAppState
         simpleApp.getInputManager().addMapping(MAPPING_EXIT_MENU, new KeyTrigger(KeyInput.KEY_0));
         simpleApp.getInputManager().addMapping("inventory", new KeyTrigger(KeyInput.KEY_1));
         
-        /*
+
         simpleApp.getInputManager().addListener(actionListener, 
                                                 MAPPING_SELECTED, 
                                                 MAPPING_MOVING_RIGHT,
                                                 MAPPING_MOVING_LEFT,
                                                 MAPPING_EXIT_MENU,
-                                                "inventory");*/
+                                                "inventory");
     }
     
     @Override
