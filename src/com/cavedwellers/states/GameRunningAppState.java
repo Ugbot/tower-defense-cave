@@ -13,6 +13,8 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
@@ -246,6 +248,19 @@ public final class GameRunningAppState extends AbstractAppState
         inputManager.addListener(actionListener, TOWER_ADD);
         
         flyCam.setMoveSpeed(50);
+        setCrossHairs();
+    }
+    
+    protected void setCrossHairs() 
+    {
+        BitmapFont guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapText crosshair = new BitmapText(guiFont, false);
+        crosshair.setSize(guiFont.getCharSet().getRenderedSize() * 2);
+        crosshair.setText("+");
+        crosshair.setLocalTranslation(simpleApp.getContext().getSettings().getWidth()/2 - guiFont.getCharSet().getRenderedSize()/3*2,
+                                      simpleApp.getContext().getSettings().getHeight()/2 + crosshair.getLineHeight()/2, 
+                                      0);
+        simpleApp.getGuiNode().attachChild(crosshair);
     }
 
     /**
@@ -351,7 +366,7 @@ public final class GameRunningAppState extends AbstractAppState
             timerBudget = 0;
         }
 
-        if (timerBeam > 75 * tpf)
+        if (timerBeam > 30 * tpf)
         {
             beamNode.detachAllChildren();
             timerBeam = 0;

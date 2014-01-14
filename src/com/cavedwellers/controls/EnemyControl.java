@@ -34,7 +34,7 @@ public class EnemyControl extends AbstractControl
         if (getHealth() > 0) 
         {
             currentTime = System.currentTimeMillis();
-            if (currentTime - initialTime >= 60) 
+            if (currentTime - initialTime >= 20) 
             {
                 moveEnemyForward();
 
