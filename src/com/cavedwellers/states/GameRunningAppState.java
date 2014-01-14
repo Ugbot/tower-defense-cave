@@ -5,6 +5,7 @@ import com.cavedwellers.enemies.Spider;
 import com.cavedwellers.controls.TowerControl;
 import com.cavedwellers.controls.EnemyControl;
 import com.cavedwellers.controls.ForceShieldControl;
+import com.cavedwellers.main.CaveDwellers;
 import com.cavedwellers.objects.*;
 import com.cavedwellers.utils.*;
 import com.jme3.app.Application;
@@ -12,6 +13,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -50,6 +52,7 @@ public final class GameRunningAppState extends AbstractAppState
     private InputManager inputManager;
     private ViewPort viewPort;
     private Camera camera;
+    private FlyByCamera flyCam;
     private Node rootNode;
     
     private Node sceneNode = new Node("scene node");
@@ -63,6 +66,8 @@ public final class GameRunningAppState extends AbstractAppState
     private Wall caveWall2;
     private Teleporter teleporter;
     private PlayerBase homeBase;
+    private ForceShieldControl forceShieldControl;
+    private Geometry forceShield;
 
     private SpotLight cameraLighting;
     
@@ -90,21 +95,28 @@ public final class GameRunningAppState extends AbstractAppState
     private long currentTime = 0;
     
     private long initialTime2;
-    private long currentTime2;
-    private ForceShieldControl forceShieldControl;
-    private Geometry forceShield;
+    private long currentTime2;    
+    
+    public GameRunningAppState()
+    {
+        atmosphere = new AmbientLight();
+        atmosphere.setColor(ColorRGBA.Gray.mult(5));
+    }
     
     public GameRunningAppState(AmbientLight initialAtmosphere)
     {
         atmosphere = initialAtmosphere;
     }
-
+    
     @Override
     public void initialize(AppStateManager stateManager, Application app)
     {
         super.initialize(stateManager, app);
 
         simpleApp = (SimpleApplication) app;
+        
+        if (CaveDwellers.DEBUG_ON)
+            simpleApp.getRootNode().addLight(atmosphere);
  
         initResources();
 
@@ -117,12 +129,12 @@ public final class GameRunningAppState extends AbstractAppState
         initStaticObjects();
         
         initForceShields();
-        
-        attachNodes();
-        
+
         setMusicAndSound();
         
         setPlayerControls();
+        
+        attachNodes();
         
         initialTime = System.currentTimeMillis();
         
@@ -137,6 +149,7 @@ public final class GameRunningAppState extends AbstractAppState
         this.stateManager = simpleApp.getStateManager();
         this.assetManager = simpleApp.getAssetManager();
         this.camera = simpleApp.getCamera();
+        this.flyCam = simpleApp.getFlyByCamera();
         this.viewPort = simpleApp.getViewPort();
         this.inputManager = simpleApp.getInputManager();
         this.rootNode = simpleApp.getRootNode();
@@ -202,7 +215,7 @@ public final class GameRunningAppState extends AbstractAppState
                                 new Vector3f(-269.80066f, -4.1872263E-5f, 269.99808f),
                                 new Vector3f(269.80066f, -4.1872263E-5f, 269.99808f)};
 
-        Quaternion YAW090   = new Quaternion().fromAngleAxis(FastMath.PI/2,   new Vector3f(0,1,0));
+        Quaternion YAW090 = new Quaternion().fromAngleAxis(FastMath.PI/2, new Vector3f(0,1,0));
         
         for (int i = 0; i < shields.length; ++i)
         {
@@ -222,17 +235,17 @@ public final class GameRunningAppState extends AbstractAppState
     
     private void setMusicAndSound()
     {
-        Music.playTheme();
+        Music.setAssetManager(assetManager);
         SFX.setAssetManager(assetManager);
+        Music.playTheme();
     }
-
 
     private void setPlayerControls()
     {
         inputManager.addMapping(TOWER_ADD, new KeyTrigger(KeyInput.KEY_5));
         inputManager.addListener(actionListener, TOWER_ADD);
         
-        simpleApp.getFlyByCamera().setMoveSpeed(50);
+        flyCam.setMoveSpeed(50);
     }
 
     /**
@@ -277,9 +290,8 @@ public final class GameRunningAppState extends AbstractAppState
 
     @Override
     public void update(float tpf) 
-    {        
-        if (camera.getLocation().getY() < 1.7f)
-            camera.setLocation(new Vector3f(camera.getLocation().getX(), 1.7f, camera.getLocation().getZ()));
+    {
+        keepCameraWithinBounds();
 
         if (isGamePaused)
             return;
@@ -344,6 +356,24 @@ public final class GameRunningAppState extends AbstractAppState
             beamNode.detachAllChildren();
             timerBeam = 0;
         }
+    }
+    
+    private void keepCameraWithinBounds()
+    {
+        if (camera.getLocation().getX() < -254.94086f)
+            camera.setLocation(new Vector3f(-254.94086f, camera.getLocation().getY(), camera.getLocation().getZ()));
+        else if (camera.getLocation().getX() > 255.42863f)
+            camera.setLocation(new Vector3f(255.42863f, camera.getLocation().getY(), camera.getLocation().getZ()));
+        
+        if (camera.getLocation().getY() < 1.7f)
+            camera.setLocation(new Vector3f(camera.getLocation().getX(), 1.7f, camera.getLocation().getZ()));
+        else if (camera.getLocation().getY() > 12.262533f)
+            camera.setLocation(new Vector3f(camera.getLocation().getX(), 12.262533f, camera.getLocation().getZ()));
+        
+        if (camera.getLocation().getZ() < -251.47804f)
+            camera.setLocation(new Vector3f(camera.getLocation().getX(), camera.getLocation().getY(), -251.47804f));
+        else if (camera.getLocation().getZ() > 241)
+            camera.setLocation(new Vector3f(camera.getLocation().getX(), camera.getLocation().getY(), 241.56644f));
     }
 
     public Node getNode(String desiredNode)
@@ -442,9 +472,16 @@ public final class GameRunningAppState extends AbstractAppState
     @Override
     public void cleanup()
     {
+        setEnabled(false);
+        
+        Music.stopTheme();
+        
+        rootNode.removeLight(atmosphere);
+        rootNode.detachAllChildren();
+        
         stateManager.detach(gui);
-        enemyNode.detachAllChildren();
-        beamNode.detachAllChildren();
-        towerNode.detachAllChildren();
+        
+        JOptionPane.showMessageDialog(null, "This is a very early prototype. Keep checking @ github.com/abner7/tower-defense-cave");
+        System.exit(0);
     }
 }

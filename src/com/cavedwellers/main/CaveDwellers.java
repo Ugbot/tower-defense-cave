@@ -14,6 +14,8 @@ import com.jme3.system.AppSettings;
  */
 public class CaveDwellers extends SimpleApplication
 {
+    public static final boolean DEBUG_ON = false;
+    
     public static void main(String[] args)
     {
         AppSettings screenSettings = new AppSettings(true);
@@ -33,6 +35,10 @@ public class CaveDwellers extends SimpleApplication
     {
         setDisplayFps(false);
         setDisplayStatView(false);
-        stateManager.attach(new StartScreenAppState()); // start game
+        
+        if (DEBUG_ON)
+            stateManager.attach(new GameRunningAppState());
+        else
+            stateManager.attach(new StartScreenAppState());
     }
 }

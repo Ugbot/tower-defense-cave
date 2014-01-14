@@ -197,7 +197,7 @@ public class StartScreenAppState extends AbstractAppState
     @Override
     public void cleanup()
     {
-        this.setEnabled(false);
+        setEnabled(false);
         
         Music.stopIntroTheme();
         

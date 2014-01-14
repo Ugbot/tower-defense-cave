@@ -67,10 +67,13 @@ public class EnemyControl extends AbstractControl
     
     private boolean hasEnemyReachedBase()
     {
-        return spatial.getLocalTranslation().getZ() <= -30;
+        if (spatial.getName().startsWith("spider"))
+            return spatial.getLocalTranslation().getZ() <= 2.74f;
+        
+        return spatial.getLocalTranslation().getX() > 1.13f;
     }
 
-    private int getHealth() 
+    public int getHealth() 
     {
         return spatial.getUserData("health");
     }

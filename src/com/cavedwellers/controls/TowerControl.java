@@ -24,6 +24,9 @@ public class TowerControl extends AbstractControl
     private GameRunningAppState currentGameState;
     private Node beamNode;
     
+    private boolean isStillAttackingPreviousEnemy;
+    private Spatial currentEnemy;
+    
     public TowerControl(GameRunningAppState state) 
     {
         currentGameState = state;
@@ -41,14 +44,28 @@ public class TowerControl extends AbstractControl
                 attackEnemy(enemy);
     }
 
-    public void attackEnemy(Spatial enemy) 
+    public void attackEnemy(Spatial newEnemy) 
     {
-        if (spatial.getUserData("type").equals("laser") && enemy.getName().startsWith("ghost")) 
+        if (currentEnemy == null)
+            currentEnemy = newEnemy;
+
+        if (spatial.getUserData("type").equals("laser") && currentEnemy.getName().startsWith("ghost")) 
             return;
         
+        useBeam();
+        
+        if (currentEnemy.getControl(EnemyControl.class).getHealth() <= 0) 
+        {
+            currentEnemy = null;
+            beamNode.detachAllChildren();
+        }
+    }
+    
+    public void useBeam()
+    {
         Vector3f beamStartLocation = new Vector3f(spatial.getLocalTranslation().getX(), getTowerHeight(), spatial.getLocalTranslation().getZ());
-        beamNode.attachChild(getBeam(beamStartLocation, enemy.getLocalTranslation()));
-        enemy.getControl(EnemyControl.class).decreaseHealth((int)spatial.getUserData("damage"));
+        beamNode.attachChild(getBeam(beamStartLocation, currentEnemy.getLocalTranslation()));
+        currentEnemy.getControl(EnemyControl.class).decreaseHealth((int)spatial.getUserData("damage"));
     }
 
     public Geometry getBeam(Vector3f start, Vector3f end) 
