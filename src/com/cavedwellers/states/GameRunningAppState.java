@@ -2,9 +2,7 @@ package com.cavedwellers.states;
 
 import com.cavedwellers.enemies.Ghost;
 import com.cavedwellers.enemies.Spider;
-import com.cavedwellers.controls.TowerControl;
-import com.cavedwellers.controls.EnemyControl;
-import com.cavedwellers.controls.ForceShieldControl;
+import com.cavedwellers.controls.*;
 import com.cavedwellers.main.CaveDwellers;
 import com.cavedwellers.objects.*;
 import com.cavedwellers.utils.*;
@@ -56,6 +54,7 @@ public final class GameRunningAppState extends AbstractAppState
     private Camera camera;
     private FlyByCamera flyCam;
     private Node rootNode;
+    private Node guiNode;
     
     private Node sceneNode = new Node("scene node");
     private Node beamNode = new Node("beam node");
@@ -99,6 +98,10 @@ public final class GameRunningAppState extends AbstractAppState
     private long initialTime2;
     private long currentTime2;    
     
+    private Narrator gameNarrator;
+    private boolean hasNarratorTalkedAboutTargeting;
+    private boolean hasNarratorTalkedAboutMenu;
+
     public GameRunningAppState()
     {
         atmosphere = new AmbientLight();
@@ -116,6 +119,8 @@ public final class GameRunningAppState extends AbstractAppState
         super.initialize(stateManager, app);
 
         simpleApp = (SimpleApplication) app;
+        
+        gameNarrator = new Narrator(stateManager, simpleApp.getAssetManager(), simpleApp.getGuiNode());
         
         if (CaveDwellers.DEBUG_ON)
             simpleApp.getRootNode().addLight(atmosphere);
@@ -141,6 +146,8 @@ public final class GameRunningAppState extends AbstractAppState
         initialTime = System.currentTimeMillis();
         
         initialTime2 = System.currentTimeMillis();
+        
+        gameNarrator.talk("W A S D and Arrow Keys to Navigate", 10);
     }
     
     private void initResources()
@@ -155,6 +162,7 @@ public final class GameRunningAppState extends AbstractAppState
         this.viewPort = simpleApp.getViewPort();
         this.inputManager = simpleApp.getInputManager();
         this.rootNode = simpleApp.getRootNode();
+        this.guiNode = simpleApp.getGuiNode();
     }
     
     private void initGUI()
@@ -244,7 +252,7 @@ public final class GameRunningAppState extends AbstractAppState
 
     private void setPlayerControls()
     {
-        inputManager.addMapping(TOWER_ADD, new KeyTrigger(KeyInput.KEY_5));
+        inputManager.addMapping(TOWER_ADD, new KeyTrigger(KeyInput.KEY_RETURN));
         inputManager.addListener(actionListener, TOWER_ADD);
         
         flyCam.setMoveSpeed(50);
@@ -260,7 +268,7 @@ public final class GameRunningAppState extends AbstractAppState
         crosshair.setLocalTranslation(simpleApp.getContext().getSettings().getWidth()/2 - guiFont.getCharSet().getRenderedSize()/3*2,
                                       simpleApp.getContext().getSettings().getHeight()/2 + crosshair.getLineHeight()/2, 
                                       0);
-        simpleApp.getGuiNode().attachChild(crosshair);
+        guiNode.attachChild(crosshair);
     }
 
     /**
@@ -270,7 +278,7 @@ public final class GameRunningAppState extends AbstractAppState
         @Override
         public void onAction(String name, boolean isPressed, float tpf) 
         {
-            if (name.equals(TOWER_ADD) && !isPressed && isAddingTower)
+            if (name.equals(TOWER_ADD) && isPressed && isAddingTower)
             {
                 Spatial tower;
                 
@@ -305,8 +313,10 @@ public final class GameRunningAppState extends AbstractAppState
 
     @Override
     public void update(float tpf) 
-    {
+    {   
         keepCameraWithinBounds();
+        
+        handleNarratorMessages();
 
         if (isGamePaused)
             return;
@@ -355,6 +365,7 @@ public final class GameRunningAppState extends AbstractAppState
 
             teleporter.show();
             SFX.playTeleportAppearing();
+            gameNarrator.talk("Uh, what was that sound?", "Sounds/warning.ogg");
         }
 
         timerBudget += tpf;
@@ -389,6 +400,23 @@ public final class GameRunningAppState extends AbstractAppState
             camera.setLocation(new Vector3f(camera.getLocation().getX(), camera.getLocation().getY(), -251.47804f));
         else if (camera.getLocation().getZ() > 241)
             camera.setLocation(new Vector3f(camera.getLocation().getX(), camera.getLocation().getY(), 241.56644f));
+    }
+    
+    private void handleNarratorMessages()
+    {
+        if (gameNarrator.hasTimeExpired() && !hasNarratorTalkedAboutTargeting)
+        {
+            gameNarrator.hide();
+            gameNarrator.talk("Obtain enemy information by targeting enemy and pressing <ENTER>", "Sounds/instructions2.ogg");
+            hasNarratorTalkedAboutTargeting = true;
+        }
+        
+        if (gameNarrator.hasStoppedTalking() && hasNarratorTalkedAboutTargeting && !hasNarratorTalkedAboutMenu)
+        {
+            gameNarrator.hide();
+            gameNarrator.talk("Oh, and by pressing <SPACE> we get access to the inventory", "Sounds/instructions3.ogg");
+            hasNarratorTalkedAboutMenu = true;
+        }
     }
 
     public Node getNode(String desiredNode)

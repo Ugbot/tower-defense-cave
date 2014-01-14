@@ -39,6 +39,7 @@ public class Music
         if (theme == null)
             theme = new AudioNode(assetManager, "Sounds/caveTheme.ogg", true);
         theme.setPositional(false);
+        theme.setVolume(0.5f);
         theme.play();
         theme.setLooping(true);
     }

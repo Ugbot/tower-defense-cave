@@ -39,14 +39,16 @@ public class InterfaceAppState extends AbstractAppState
     
     private boolean spiderInfoToggled = false;
     private boolean ghostInfoToggled = false;
-    private boolean inventoryToggled = false;
+    private boolean isInventoryToggled = false;
     private boolean exitToggled = false;
     private boolean exitMenuExiting = false;
     
-    private static final String MAPPING_SELECTED = "selected target";
-    private static final String MAPPING_MOVING_RIGHT = "moving right";
-    private static final String MAPPING_MOVING_LEFT = "moving left";
-    private static final String MAPPING_EXIT_MENU = "toggle exit menu";
+    private static final String SELECTED_TOWER = "selected target";
+    private static final String MOVING_RIGHT = "moving right";
+    private static final String MOVING_LEFT = "moving left";
+    private static final String TOGGLED_INVENTORY = "toggle inventory";
+    private static final String TOGGLED_EXIT_MENU = "toggle exit menu";
+    
     private String selectedTower = "";
     
     public InterfaceAppState(GameRunningAppState state) 
@@ -66,19 +68,19 @@ public class InterfaceAppState extends AbstractAppState
         
         simpleApp = (SimpleApplication) app;
         
-        simpleApp.getInputManager().addMapping(MAPPING_SELECTED, new KeyTrigger(KeyInput.KEY_RETURN));
-        simpleApp.getInputManager().addMapping(MAPPING_MOVING_RIGHT, new KeyTrigger(KeyInput.KEY_3));
-        simpleApp.getInputManager().addMapping(MAPPING_MOVING_LEFT, new KeyTrigger(KeyInput.KEY_2));
-        simpleApp.getInputManager().addMapping(MAPPING_EXIT_MENU, new KeyTrigger(KeyInput.KEY_0));
-        simpleApp.getInputManager().addMapping("inventory", new KeyTrigger(KeyInput.KEY_1));
+        simpleApp.getInputManager().addMapping(SELECTED_TOWER, new KeyTrigger(KeyInput.KEY_RETURN));
+        simpleApp.getInputManager().addMapping(MOVING_RIGHT, new KeyTrigger(KeyInput.KEY_RIGHT));
+        simpleApp.getInputManager().addMapping(MOVING_LEFT, new KeyTrigger(KeyInput.KEY_LEFT));
+        simpleApp.getInputManager().addMapping(TOGGLED_EXIT_MENU, new KeyTrigger(KeyInput.KEY_0));
+        simpleApp.getInputManager().addMapping(TOGGLED_INVENTORY, new KeyTrigger(KeyInput.KEY_SPACE));
         
 
         simpleApp.getInputManager().addListener(actionListener, 
-                                                MAPPING_SELECTED, 
-                                                MAPPING_MOVING_RIGHT,
-                                                MAPPING_MOVING_LEFT,
-                                                MAPPING_EXIT_MENU,
-                                                "inventory");
+                                                SELECTED_TOWER, 
+                                                MOVING_RIGHT,
+                                                MOVING_LEFT,
+                                                TOGGLED_EXIT_MENU,
+                                                TOGGLED_INVENTORY);
     }
     
     @Override
@@ -138,7 +140,7 @@ public class InterfaceAppState extends AbstractAppState
         @Override
         public void onAction(String name, boolean isPressed, float tpf) 
         {
-            if (name.equals(MAPPING_SELECTED) && !isPressed && !currentGameState.isPlayerAddingTower()) 
+            if (name.equals(SELECTED_TOWER) && !isPressed && !currentGameState.isPlayerAddingTower()) 
             {
                 if (canSeeSpiderInfo) 
                 {
@@ -177,10 +179,10 @@ public class InterfaceAppState extends AbstractAppState
                 }
             }
             
-            if (name.equals("inventory") && !isPressed)
+            if (name.equals(TOGGLED_INVENTORY) && !isPressed)
                 toggleInventory();
             
-            if (name.equals(MAPPING_MOVING_RIGHT) && !isPressed) 
+            if (name.equals(MOVING_RIGHT) && isInventoryToggled && !isPressed) 
             {
                 if (laserTowerSelected) 
                 {
@@ -197,7 +199,7 @@ public class InterfaceAppState extends AbstractAppState
                 highlightInventoryOption("laserTower");
             }
             
-            if (name.equals(MAPPING_MOVING_LEFT) && !isPressed) 
+            if (name.equals(MOVING_LEFT) && isInventoryToggled && !isPressed) 
             {
                 if (lightTowerSelected) 
                 {
@@ -214,7 +216,7 @@ public class InterfaceAppState extends AbstractAppState
                 highlightInventoryOption("none");
             }
             
-            if (name.equals(MAPPING_EXIT_MENU) && !isPressed)
+            if (name.equals(TOGGLED_EXIT_MENU) && !isPressed)
                 toggleExit();
         }
     };
@@ -284,8 +286,10 @@ public class InterfaceAppState extends AbstractAppState
     private void toggleInventory() 
     {
         /* Toggle off if it was already on */
-        if (inventoryToggled) 
+        if (isInventoryToggled) 
         {
+            simpleApp.getFlyByCamera().setEnabled(true);
+            
             /* Remove budget info */
             simpleApp.getGuiNode().getChild("budgetIcon").removeFromParent();
             simpleApp.getGuiNode().getChild("budgetText").removeFromParent();
@@ -305,11 +309,13 @@ public class InterfaceAppState extends AbstractAppState
             currentGameState.setAmbientColor(ColorRGBA.Gray);
             currentGameState.setPause(false);
             
-            inventoryToggled = false;
+            isInventoryToggled = false;
             return;
         }
         
         /* If we're here, it means it's not toggled on */
+        simpleApp.getFlyByCamera().setEnabled(false);
+        
         // TODO: Make inventory background a private instance variable instead
         Picture inventoryBackground = new Picture("inventoryBackground");
         inventoryBackground.setImage(simpleApp.getAssetManager(), "Interface/inventoryBackground.png", true);
@@ -324,7 +330,7 @@ public class InterfaceAppState extends AbstractAppState
         currentGameState.setAmbientColor(ColorRGBA.Orange);
         currentGameState.setPause(true);
         
-        inventoryToggled = true;
+        isInventoryToggled = true;
         
         AudioNode inventory = new AudioNode(simpleApp.getAssetManager(), "Sounds/inventory.wav", false);
         inventory.setPositional(false);

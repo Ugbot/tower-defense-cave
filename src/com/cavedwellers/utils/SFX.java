@@ -27,6 +27,7 @@ public final class SFX
     {
         AudioNode teleport = new AudioNode(assetManager, "Sounds/teleport.wav", false);
         teleport.setPositional(false);
+        teleport.setVolume(0.5f);
         teleport.play();
     }
 }
