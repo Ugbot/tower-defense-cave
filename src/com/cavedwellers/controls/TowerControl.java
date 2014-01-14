@@ -10,7 +10,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.shape.Line;
-import com.cavedwellers.states.GameRunningState;
+import com.cavedwellers.states.GameRunningAppState;
 
 /**
  * This is a spatial control (http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_controls).
@@ -21,10 +21,10 @@ import com.cavedwellers.states.GameRunningState;
  */
 public class TowerControl extends AbstractControl 
 {
-    private GameRunningState currentGameState;
+    private GameRunningAppState currentGameState;
     private Node beamNode;
     
-    public TowerControl(GameRunningState state) 
+    public TowerControl(GameRunningAppState state) 
     {
         currentGameState = state;
         beamNode = currentGameState.getNode("beam");

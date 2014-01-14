@@ -1,6 +1,7 @@
 package com.cavedwellers.main;
 
-import com.cavedwellers.states.GameRunningState;
+import com.cavedwellers.states.GameRunningAppState;
+import com.cavedwellers.states.StartScreenAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 
@@ -32,6 +33,6 @@ public class CaveDwellers extends SimpleApplication
     {
         setDisplayFps(false);
         setDisplayStatView(false);
-        stateManager.attach(new GameRunningState()); // start game
+        stateManager.attach(new StartScreenAppState()); // start game
     }
 }

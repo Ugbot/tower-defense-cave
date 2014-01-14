@@ -3,7 +3,7 @@ package com.cavedwellers.controls;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
-import com.cavedwellers.states.GameRunningState;
+import com.cavedwellers.states.GameRunningAppState;
 
 /**
  * This is a spatial control (http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_controls).
@@ -17,9 +17,9 @@ public class EnemyControl extends AbstractControl
     private long initialTime;
     private long currentTime;
 
-    GameRunningState currentGame;
+    GameRunningAppState currentGame;
 
-    public EnemyControl(GameRunningState state) 
+    public EnemyControl(GameRunningAppState state) 
     {
         initialTime = System.currentTimeMillis();
         currentGame = state;

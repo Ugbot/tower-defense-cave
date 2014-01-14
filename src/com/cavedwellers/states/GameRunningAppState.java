@@ -40,7 +40,7 @@ import jme3tools.optimize.GeometryBatchFactory;
  *
  * @author Abner Coimbre
  */
-public final class GameRunningState extends AbstractAppState
+public final class GameRunningAppState extends AbstractAppState
 {
     private InterfaceAppState gui;
     
@@ -63,17 +63,17 @@ public final class GameRunningState extends AbstractAppState
     private Wall caveWall2;
     private Teleporter teleporter;
     private PlayerBase homeBase;
-    
-    private AmbientLight atmosphere;
+
     private SpotLight cameraLighting;
     
     int towerID = 1;
     private static final String TOWER_ADD = "add tower";
 
-    private Random generator = new Random();
-    private static final Vector3f[] enemyLocations = {new Vector3f(0f, 1f, 269),
+    public static final Random RANDOM_GENERATOR = new Random();
+    public static final Vector3f[] ENEMY_LOCATIONS = {new Vector3f(0f, 1f, 269),
                                                       new Vector3f(3f, 1f, 267),
                                                       new Vector3f(-2f, 1f, 269)};
+    private AmbientLight atmosphere;
     
     private boolean isGameOver = false;
     private boolean isGamePaused = false;
@@ -93,6 +93,11 @@ public final class GameRunningState extends AbstractAppState
     private long currentTime2;
     private ForceShieldControl forceShieldControl;
     private Geometry forceShield;
+    
+    public GameRunningAppState(AmbientLight initialAtmosphere)
+    {
+        atmosphere = initialAtmosphere;
+    }
 
     @Override
     public void initialize(AppStateManager stateManager, Application app)
@@ -104,8 +109,6 @@ public final class GameRunningState extends AbstractAppState
         initResources();
 
         initGUI();
-
-        initAtmosphere();
 
         initBloomFilter();
 
@@ -143,13 +146,6 @@ public final class GameRunningState extends AbstractAppState
     {
         gui = new InterfaceAppState(this);
         stateManager.attach(gui);
-    }
-    
-    private void initAtmosphere()
-    {
-        atmosphere = new AmbientLight();
-        setAmbientColor(ColorRGBA.Gray);
-        rootNode.addLight(atmosphere);
     }
     
     private void initBloomFilter()
@@ -202,9 +198,9 @@ public final class GameRunningState extends AbstractAppState
         ForceShield[] shields = new ForceShield[4];
         
         Vector3f[] locations = {new Vector3f(-269.80066f, -4.1872263E-5f, 269.99808f),
-                                      new Vector3f(-269.80066f, -4.1872263E-5f, -269.99808f),
-                                      new Vector3f(-269.80066f, -4.1872263E-5f, 269.99808f),
-                                      new Vector3f(269.80066f, -4.1872263E-5f, 269.99808f)};
+                                new Vector3f(-269.80066f, -4.1872263E-5f, -269.99808f),
+                                new Vector3f(-269.80066f, -4.1872263E-5f, 269.99808f),
+                                new Vector3f(269.80066f, -4.1872263E-5f, 269.99808f)};
 
         Quaternion YAW090   = new Quaternion().fromAngleAxis(FastMath.PI/2,   new Vector3f(0,1,0));
         
@@ -226,7 +222,6 @@ public final class GameRunningState extends AbstractAppState
     
     private void setMusicAndSound()
     {
-        Music.setAssetManager(assetManager);
         Music.playTheme();
         SFX.setAssetManager(assetManager);
     }
@@ -268,7 +263,7 @@ public final class GameRunningState extends AbstractAppState
                 }
                 
                 tower.setLocalTranslation(towerLocation);
-                tower.addControl(new TowerControl(stateManager.getState(GameRunningState.class)));
+                tower.addControl(new TowerControl(stateManager.getState(GameRunningAppState.class)));
                 towerNode.attachChild(tower);
                 SFX.playSettingTower();
                 
@@ -282,7 +277,7 @@ public final class GameRunningState extends AbstractAppState
 
     @Override
     public void update(float tpf) 
-    {             
+    {        
         if (camera.getLocation().getY() < 1.7f)
             camera.setLocation(new Vector3f(camera.getLocation().getX(), 1.7f, camera.getLocation().getZ()));
 
@@ -311,7 +306,7 @@ public final class GameRunningState extends AbstractAppState
         if (currentTime - initialTime >= 5000)
         {
             Spider spider = new Spider(assetManager, enemyNode);
-            spider.move(enemyLocations[generator.nextInt(3)]);
+            spider.move(ENEMY_LOCATIONS[RANDOM_GENERATOR.nextInt(3)]);
             spider.addEnemyControl(new EnemyControl(this));
             spider.enableAnimation();
 
@@ -416,7 +411,7 @@ public final class GameRunningState extends AbstractAppState
 
     public void setAmbientColor(ColorRGBA color)
     {
-        atmosphere.setColor(color.mult(5f));
+        atmosphere.setColor(color.mult(5));
     }
 
     public void setPlayerAddingTower(boolean isPlayerAddingTower)

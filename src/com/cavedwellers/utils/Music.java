@@ -11,6 +11,7 @@ import com.jme3.audio.AudioSource;
 public class Music 
 {
     private static AssetManager assetManager;
+    private static AudioNode introTheme;
     private static AudioNode theme;
     
     public static void setAssetManager(AssetManager assetManager)
@@ -18,13 +19,28 @@ public class Music
         Music.assetManager = assetManager;
     }
     
+    public static void playIntroTheme()
+    {
+        if (introTheme == null)
+            introTheme = new AudioNode(assetManager, "Sounds/introTheme.ogg", true);
+        introTheme.setPositional(false);
+        introTheme.play();
+        introTheme.setLooping(true);
+    }
+    
+    public static void stopIntroTheme()
+    {
+        if (introTheme.getStatus() == AudioSource.Status.Playing)
+            introTheme.stop();
+    }
+    
     public static void playTheme()
     {
         if (theme == null)
             theme = new AudioNode(assetManager, "Sounds/caveTheme.ogg", true);
-        
         theme.setPositional(false);
         theme.play();
+        theme.setLooping(true);
     }
     
     public static void stopTheme()

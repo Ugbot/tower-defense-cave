@@ -23,7 +23,7 @@ import com.jme3.ui.Picture;
  */
 public class InterfaceAppState extends AbstractAppState 
 {
-    private GameRunningState currentGameState;
+    private GameRunningAppState currentGameState;
     private SimpleApplication simpleApp;
     
     private Ray ray = new Ray();
@@ -49,7 +49,7 @@ public class InterfaceAppState extends AbstractAppState
     private static final String MAPPING_EXIT_MENU = "toggle exit menu";
     private String selectedTower = "";
     
-    public InterfaceAppState(GameRunningState state) 
+    public InterfaceAppState(GameRunningAppState state) 
     {
         currentGameState = state;
     }
