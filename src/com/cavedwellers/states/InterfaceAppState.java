@@ -46,8 +46,8 @@ public class InterfaceAppState extends AbstractAppState
     private boolean lightTowerSelected = false;
     private boolean unknownTowerSelected = false; // [Note: This is the 3rd option. It's an actual tower.]
     
-    private boolean spiderInfoToggled = false;
-    private boolean ghostInfoToggled = false;
+    private boolean isSpiderInfoToggled = false;
+    private boolean isGhostInfoToggled = false;
     private boolean isInventoryToggled = false;
     private boolean exitToggled = false;
     private boolean exitMenuExiting = false;
@@ -218,7 +218,7 @@ public class InterfaceAppState extends AbstractAppState
                 }
             }
             
-            if (name.equals(TOGGLED_INVENTORY) && !isPressed)
+            if (name.equals(TOGGLED_INVENTORY) && !isPressed && !isSpiderInfoToggled && !isGhostInfoToggled)
                 toggleInventory();
             
             if (name.equals(MOVING_RIGHT) && isInventoryToggled && !isPressed) 
@@ -262,41 +262,45 @@ public class InterfaceAppState extends AbstractAppState
 
     private void toggleSpiderInfo() 
     {
-        if (spiderInfoToggled) 
+        if (isSpiderInfoToggled) 
         {
+            simpleApp.getFlyByCamera().setEnabled(true);
             simpleApp.getGuiNode().getChild("spiderInfo").removeFromParent();
             currentGameState.setAmbientColor(ColorRGBA.Gray);
             currentGameState.setPause(false);
-            spiderInfoToggled = false;
+            isSpiderInfoToggled = false;
             Narrator gameNarrator = new Narrator(simpleApp.getStateManager(), simpleApp.getAssetManager(), simpleApp.getGuiNode());
             gameNarrator.talk("Oh, and by pressing <SPACE> we get access to the inventory", "Sounds/instructions3.ogg");
             return;
         }
         
+        simpleApp.getFlyByCamera().setEnabled(false);
         simpleApp.getGuiNode().attachChild(spiderInfo);
         currentGameState.setAmbientColor(ColorRGBA.Orange);
         currentGameState.setPause(true);
         
-        spiderInfoToggled = true;
+        isSpiderInfoToggled = true;
         SFX.playShowingEnemyInfo();
     }
 
     private void toggleGhostInfo() 
     {
-        if (ghostInfoToggled) 
+        if (isGhostInfoToggled) 
         {
+            simpleApp.getFlyByCamera().setEnabled(true);
             simpleApp.getGuiNode().getChild("ghostInfo").removeFromParent();
             currentGameState.setAmbientColor(ColorRGBA.Gray);
             currentGameState.setPause(false);
-            ghostInfoToggled = false;
+            isGhostInfoToggled = false;
             return;
         }
 
+        simpleApp.getFlyByCamera().setEnabled(false);
         simpleApp.getGuiNode().attachChild(ghostInfo);
         currentGameState.setAmbientColor(ColorRGBA.Orange);
         currentGameState.setPause(true);
         
-        ghostInfoToggled = true;
+        isGhostInfoToggled = true;
         SFX.playShowingEnemyInfo();
     }
 
