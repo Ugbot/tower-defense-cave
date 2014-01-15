@@ -1,6 +1,7 @@
 package com.cavedwellers.states;
 
 import com.cavedwellers.utils.Narrator;
+import com.cavedwellers.utils.SFX;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -9,6 +10,7 @@ import com.jme3.audio.AudioNode;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -19,7 +21,13 @@ import com.jme3.scene.Spatial;
 import com.jme3.ui.Picture;
 
 /**
- * Main Interface (GUI)
+ * This is an app state (http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states).
+ * 
+ * When this state is attached, it'll create the game's GUI and wait for player input to manage it.
+ * 
+ * [Note to potential contributors: While other classes were cleaned up, this is the one that 
+ *  was barely refactored and could still get some attention.]
+ * 
  * @author Abner Coimbre
  */
 public class InterfaceAppState extends AbstractAppState 
@@ -51,17 +59,17 @@ public class InterfaceAppState extends AbstractAppState
     private static final String TOGGLED_EXIT_MENU = "toggle exit menu";
     
     private String selectedTower = "";
+    private InputManager inputManager;
+    private Picture spiderInfo;
+    private Picture ghostInfo;
+    private Picture inventoryBackground;
+    private Picture exit;
     
     public InterfaceAppState(GameRunningAppState state) 
     {
         currentGameState = state;
     }
-    
-    /**
-     * Initializes interface. Called automatically when this state is attached.
-     * @param stateManager
-     * @param app 
-     */
+
     @Override
     public void initialize(AppStateManager stateManager, Application app) 
     {
@@ -69,41 +77,71 @@ public class InterfaceAppState extends AbstractAppState
         
         simpleApp = (SimpleApplication) app;
         
-        simpleApp.getInputManager().addMapping(SELECTED_TOWER, new KeyTrigger(KeyInput.KEY_RETURN));
-        simpleApp.getInputManager().addMapping(MOVING_RIGHT, new KeyTrigger(KeyInput.KEY_RIGHT));
-        simpleApp.getInputManager().addMapping(MOVING_LEFT, new KeyTrigger(KeyInput.KEY_LEFT));
-        simpleApp.getInputManager().addMapping(TOGGLED_EXIT_MENU, new KeyTrigger(KeyInput.KEY_0));
-        simpleApp.getInputManager().addMapping(TOGGLED_INVENTORY, new KeyTrigger(KeyInput.KEY_SPACE));
+        this.inputManager = simpleApp.getInputManager();
         
+        initGuiElements();
+        
+        initKeyboardControls();
+    }
+    
+    private void initGuiElements()
+    {
+        spiderInfo = new Picture("spiderInfo");
+        spiderInfo.setImage(simpleApp.getAssetManager(), "Interface/spiderInfo.png", true);
+        spiderInfo.setWidth(796);
+        spiderInfo.setHeight(94);
+        spiderInfo.move(270, 50, -1);
+        
+        ghostInfo = new Picture("ghostInfo");
+        ghostInfo.setImage(simpleApp.getAssetManager(), "Interface/ghostInfo.png", true);
+        ghostInfo.setWidth(796);
+        ghostInfo.setHeight(94);
+        ghostInfo.move(270, 50, -1);
+        
+        inventoryBackground = new Picture("inventoryBackground");
+        inventoryBackground.setImage(simpleApp.getAssetManager(), "Interface/inventoryBackground.png", true);
+        inventoryBackground.setWidth(798);
+        inventoryBackground.setHeight(500);
+        inventoryBackground.move(270, 50, -1);
+        
+        exit = new Picture("exit");
+        exit.setImage(simpleApp.getAssetManager(), "Interface/exitMenu.png", true);
+        exit.setWidth(1000);
+        exit.setHeight(499);
+        exit.move(160, 500, -1);
+    }
+    
+    private void initKeyboardControls()
+    {
+        inputManager.addMapping(SELECTED_TOWER, new KeyTrigger(KeyInput.KEY_RETURN));
+        inputManager.addMapping(MOVING_RIGHT, new KeyTrigger(KeyInput.KEY_RIGHT));
+        inputManager.addMapping(MOVING_LEFT, new KeyTrigger(KeyInput.KEY_LEFT));
+        inputManager.addMapping(TOGGLED_EXIT_MENU, new KeyTrigger(KeyInput.KEY_0));
+        inputManager.addMapping(TOGGLED_INVENTORY, new KeyTrigger(KeyInput.KEY_SPACE));       
 
-        simpleApp.getInputManager().addListener(actionListener, 
-                                                SELECTED_TOWER, 
-                                                MOVING_RIGHT,
-                                                MOVING_LEFT,
-                                                TOGGLED_EXIT_MENU,
-                                                TOGGLED_INVENTORY);
+        inputManager.addListener(actionListener, SELECTED_TOWER, MOVING_RIGHT,
+                                 MOVING_LEFT, TOGGLED_EXIT_MENU, TOGGLED_INVENTORY);
     }
     
     @Override
     public void update(float tpf) 
-    {
-        // TODO: Add the following block of "exit" code as a control class 
-        Spatial exit = simpleApp.getGuiNode().getChild("exit");
-        if (exit != null) 
+    { 
+        Spatial exitSpatial = simpleApp.getGuiNode().getChild("exit");
+        if (exitSpatial != null) 
         {
-            if (!exit.getLocalTranslation().equals(new Vector3f(160, 50, -1)) && !exitMenuExiting) 
+            if (!exitSpatial.getLocalTranslation().equals(new Vector3f(160, 50, -1)) && !exitMenuExiting) 
             {
-               float exitY = exit.getLocalTranslation().getY(); 
-               exit.setLocalTranslation(160, exitY-10f, -1);
+               float exitY = exitSpatial.getLocalTranslation().getY(); 
+               exitSpatial.setLocalTranslation(160, exitY-10f, -1);
                return;
             }
             
             if (exitMenuExiting) 
             {
-                if (!exit.getLocalTranslation().equals(new Vector3f(160, 610, -1))) 
+                if (!exitSpatial.getLocalTranslation().equals(new Vector3f(160, 610, -1))) 
                 {
-                    float exitY = exit.getLocalTranslation().getY();
-                    exit.setLocalTranslation(160, exitY+20f, -1);
+                    float exitY = exitSpatial.getLocalTranslation().getY();
+                    exitSpatial.setLocalTranslation(160, exitY+20f, -1);
                     return;
                 }
                 simpleApp.getGuiNode().getChild("exit").removeFromParent();
@@ -221,10 +259,7 @@ public class InterfaceAppState extends AbstractAppState
                 toggleExit();
         }
     };
-    
-    /**
-     * Displays spider's info on screen.
-     */
+
     private void toggleSpiderInfo() 
     {
         if (spiderInfoToggled) 
@@ -238,24 +273,14 @@ public class InterfaceAppState extends AbstractAppState
             return;
         }
         
-        // TODO: Make spiderInfo a private instance variable instead
-        Picture spiderInfo = new Picture("spiderInfo");
-        spiderInfo.setImage(simpleApp.getAssetManager(), "Interface/spiderInfo.png", true);
-        spiderInfo.setWidth(796);
-        spiderInfo.setHeight(94);
-        spiderInfo.move(270, 50, -1);
         simpleApp.getGuiNode().attachChild(spiderInfo);
         currentGameState.setAmbientColor(ColorRGBA.Orange);
         currentGameState.setPause(true);
         
         spiderInfoToggled = true;
-        AudioNode spider = new AudioNode(simpleApp.getAssetManager(), "Sounds/setTower1.ogg", false);
-        spider.setPositional(false);
-        spider.play();
+        SFX.playShowingEnemyInfo();
     }
-    /**
-     * Displays spider's info on screen.
-     */
+
     private void toggleGhostInfo() 
     {
         if (ghostInfoToggled) 
@@ -266,67 +291,43 @@ public class InterfaceAppState extends AbstractAppState
             ghostInfoToggled = false;
             return;
         }
-        
-        // TODO: Make ghostInfo a private instance variable instead
-        Picture ghostInfo = new Picture("ghostInfo");
-        ghostInfo.setImage(simpleApp.getAssetManager(), "Interface/ghostInfo.png", true);
-        ghostInfo.setWidth(796);
-        ghostInfo.setHeight(94);
-        ghostInfo.move(270, 50, -1);
+
         simpleApp.getGuiNode().attachChild(ghostInfo);
         currentGameState.setAmbientColor(ColorRGBA.Orange);
         currentGameState.setPause(true);
         
         ghostInfoToggled = true;
-        AudioNode ghost = new AudioNode(simpleApp.getAssetManager(), "Sounds/setTower1.ogg", false);
-        ghost.setPositional(false);
-        ghost.play();
+        SFX.playShowingEnemyInfo();
     }
 
-    /**
-     * Displays inventory on screen.
-     */
     private void toggleInventory() 
     {
-        /* Toggle off if it was already on */
         if (isInventoryToggled) 
         {
             simpleApp.getFlyByCamera().setEnabled(true);
-            
-            /* Remove budget info */
+
             simpleApp.getGuiNode().getChild("budgetIcon").removeFromParent();
             simpleApp.getGuiNode().getChild("budgetText").removeFromParent();
-            
-            /* Remove inventory options */
+
             for (int i = 0; i < optionNames.length; i++)
                 simpleApp.getGuiNode().getChild(optionNames[i]).removeFromParent();
             
             setLaserTowerText(false); // TODO: Add a setText(optionNames[i], false) instead (?)
             setLightTowerText(false);
             setUnknownTowerText(false); // Or rethink the removing and adding algorithm
-            
-            /* Remove background */
+
             simpleApp.getGuiNode().getChild("inventoryBackground").removeFromParent();
-            
-            /* Unpause game */
+
             currentGameState.setAmbientColor(ColorRGBA.Gray);
             currentGameState.setPause(false);
             
             isInventoryToggled = false;
             return;
         }
-        
-        /* If we're here, it means it's not toggled on */
+
         simpleApp.getFlyByCamera().setEnabled(false);
         
-        // TODO: Make inventory background a private instance variable instead
-        Picture inventoryBackground = new Picture("inventoryBackground");
-        inventoryBackground.setImage(simpleApp.getAssetManager(), "Interface/inventoryBackground.png", true);
-        inventoryBackground.setWidth(798);
-        inventoryBackground.setHeight(500);
-        inventoryBackground.move(270, 50, -1);
         simpleApp.getGuiNode().attachChild(inventoryBackground);
-        
         addInventoryOptions();
         showBudget();
         
@@ -334,15 +335,9 @@ public class InterfaceAppState extends AbstractAppState
         currentGameState.setPause(true);
         
         isInventoryToggled = true;
-        
-        AudioNode inventory = new AudioNode(simpleApp.getAssetManager(), "Sounds/inventory.wav", false);
-        inventory.setPositional(false);
-        inventory.play();
+        SFX.playInventoryToggled();
     }
-    
-    /**
-     * Place available inventory options on screen.
-     */
+
     private void addInventoryOptions() 
     {
         for (int i = 0; i < optionNames.length; i++) 
@@ -360,14 +355,7 @@ public class InterfaceAppState extends AbstractAppState
         /* Highlight first option */
         highlightInventoryOption("laserTower");
     }
-    
-    /**
-     * Highlights a desired inventory option on the screen. When the user presses enter,
-     * that option will be selected.
-     * [Note: Temporary - If <Enter> is pressed with no highlighted option (see case: "none"),
-     * the inventory menu will dissappear.]
-     * @param desiredOption the name of the desired inventory option (e.g. "lightTower")
-     */
+
     private void highlightInventoryOption(String desiredOption) 
     {
         Picture option;
@@ -426,12 +414,7 @@ public class InterfaceAppState extends AbstractAppState
             simpleApp.getGuiNode().attachChild(budgetSmallIcon);
             return;
         }
-        
-        /* We need these conditionals because resetInventoryOptions() is called
-         * by different client code, at times where the text doesn't exist.
-         * E.g. See highlightInventoryOption()
-         * TODO: Change the code so that this conditional isn't needed.
-         */
+
         Spatial text = simpleApp.getGuiNode().getChild("laserTowerText");
         if (text != null)
             text.removeFromParent();
@@ -461,12 +444,7 @@ public class InterfaceAppState extends AbstractAppState
             simpleApp.getGuiNode().attachChild(budgetSmallIcon);
             return;
         }
-        
-        /* We need these conditionals because resetInventoryOptions() is called
-         * by different client code, at times where the text doesn't exist.
-         * E.g. See highlightInventoryOption()
-         * TODO: Change the code so that this conditional isn't needed.
-         */
+
         Spatial text = simpleApp.getGuiNode().getChild("lightTowerText");
         if (text != null)
             text.removeFromParent();
@@ -496,12 +474,7 @@ public class InterfaceAppState extends AbstractAppState
             simpleApp.getGuiNode().attachChild(budgetSmallIcon);
             return;
         }
-        
-        /* We need these conditionals because resetInventoryOptions() is called
-         * by different client code, at times where the text doesn't exist.
-         * E.g. See highlightInventoryOption()
-         * TODO: Change the code so that this conditional isn't needed.
-         */
+
         Spatial text = simpleApp.getGuiNode().getChild("unknownTowerText");
         if (text != null)
             text.removeFromParent();
@@ -510,11 +483,7 @@ public class InterfaceAppState extends AbstractAppState
         if (textIcon != null)
             textIcon.removeFromParent();
     }
-    
-    /**
-     * Doesn't highlight any more options. If player presses enter, the inventory
-     * menu will quit.
-     */
+
     private void resetInventoryOptions() 
     {
         for (int i = 0; i < optionNames.length; i++) 
@@ -540,10 +509,7 @@ public class InterfaceAppState extends AbstractAppState
     {
         return selectedTower;
     }
-    
-    /**
-     * Shows the current budget on the screen.
-     */
+
     private void showBudget() 
     {
         Picture budgetIcon = new Picture("budgetIcon");
@@ -561,10 +527,7 @@ public class InterfaceAppState extends AbstractAppState
         budgetText.move(92, 86, 0);
         simpleApp.getGuiNode().attachChild(budgetText);
     }
-    
-    /**
-     * Displays exit menu on screen.
-     */
+
     private void toggleExit() 
     {
         if (exitToggled) 
@@ -575,13 +538,7 @@ public class InterfaceAppState extends AbstractAppState
             exitToggled = false;
             return;
         }
-        
-        // TODO: Make exit a private instance variable instead
-        Picture exit = new Picture("exit");
-        exit.setImage(simpleApp.getAssetManager(), "Interface/exitMenu.png", true);
-        exit.setWidth(1000);
-        exit.setHeight(499);
-        exit.move(160, 500, -1);
+
         simpleApp.getGuiNode().attachChild(exit);
         currentGameState.setAmbientColor(ColorRGBA.Cyan);
         currentGameState.setPause(true);

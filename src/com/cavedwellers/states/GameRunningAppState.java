@@ -32,7 +32,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.Random;
-import javax.swing.JOptionPane;
 import jme3tools.optimize.GeometryBatchFactory;
 
 /**

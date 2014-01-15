@@ -30,4 +30,18 @@ public final class SFX
         teleport.setVolume(0.5f);
         teleport.play();
     }
+    
+    public static void playShowingEnemyInfo()
+    {
+        AudioNode spider = new AudioNode(assetManager, "Sounds/setTower1.ogg", false);
+        spider.setPositional(false);
+        spider.play();
+    }
+    
+    public static void playInventoryToggled()
+    {
+        AudioNode inventory = new AudioNode(assetManager, "Sounds/inventory.wav", false);
+        inventory.setPositional(false);
+        inventory.play();
+    }
 }
