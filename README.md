@@ -1,7 +1,7 @@
 Cave Dwellers
 ==================
 
-A tower defense game that takes place in a humid cave. Might become something other than a TD game, depending on what happens during this early phase of development (right now I'm interested in the look and feel of the world).
+A tower defense game that takes place in a humid cave. Might or should become something other than a TD game, depending on what happens during this early phase of development.
 
 Download Prototype
 --------
