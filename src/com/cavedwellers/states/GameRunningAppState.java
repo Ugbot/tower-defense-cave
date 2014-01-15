@@ -410,7 +410,7 @@ public final class GameRunningAppState extends AbstractAppState
         if (gameNarrator.hasTimeExpired() && !hasNarratorTalkedAboutTargeting)
         {
             gameNarrator.hide();
-            gameNarrator.talk("Obtain enemy information by targeting enemy and pressing <ENTER>", "Sounds/instructions2.ogg");
+            gameNarrator.talk("Obtain enemy information by targeting the enemy and pressing <ENTER>", "Sounds/instructions2.ogg");
             hasNarratorTalkedAboutTargeting = true;
         }
         
