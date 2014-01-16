@@ -22,5 +22,5 @@ Here's one way to download the source code so you can fiddle with it:
 ![step3](https://f.cloud.github.com/assets/4027178/1935401/345b3682-7ef9-11e3-8233-43daf2453d62.png)
 3. After forking this github repository, write down its link along with a github username and password.
 
-![step4](https://f.cloud.github.com/assets/4027178/1935422/92b7cb3c-7ef9-11e3-8c8e-f0882c3acae9.png)
+![step4](https://f.cloud.github.com/assets/4027178/1935664/7816da40-7efc-11e3-8e48-6cffb291c611.png)
 4. That should be about it! If there's any issues please report.
