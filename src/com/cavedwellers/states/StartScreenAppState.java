@@ -69,6 +69,8 @@ public class StartScreenAppState extends AbstractAppState
     {
         super.initialize(stateManager, app);
         
+        initialTime = System.currentTimeMillis();
+        
         simpleApp = (SimpleApplication) app;
         
         this.stateManager = simpleApp.getStateManager();
@@ -78,33 +80,37 @@ public class StartScreenAppState extends AbstractAppState
         this.inputManager = simpleApp.getInputManager();
         this.rootNode = simpleApp.getRootNode();
         this.guiNode = simpleApp.getGuiNode();
+        
         Music.setAssetManager(assetManager);
+        
+        showTitle();
 
         setCamPosition();
-        
-        initFadeFilter();
-        
+ 
         initCave();
         
         initAtmosphere(); 
         
         initFloorLighting();
         
+        initFadeFilter();
+        
         initKeyboardControls();
-
-        spiders = new LinkedList<>();
-
+        
         Music.playIntroTheme();
-
+        
+        spiders = new LinkedList<>();
+    }
+    
+    private void showTitle()
+    {
         BitmapFont guiFont = assetManager.loadFont("Interface/Fonts/AppleChancery.fnt");
-        BitmapText helloText = new BitmapText(guiFont, false);
-        helloText.setSize(guiFont.getCharSet().getRenderedSize());
-        helloText.setText("Cave Dwellers - Early Prototype");
-        helloText.setColor(ColorRGBA.Red);
-        helloText.setLocalTranslation(885, 500 + helloText.getLineHeight(), 0);
-        guiNode.attachChild(helloText);
-
-        initialTime = System.currentTimeMillis();
+        BitmapText gameTitle = new BitmapText(guiFont, false);
+        gameTitle.setSize(guiFont.getCharSet().getRenderedSize());
+        gameTitle.setText("Cave Dwellers - Early Prototype");
+        gameTitle.setColor(ColorRGBA.Red);
+        gameTitle.setLocalTranslation(885, 500 + gameTitle.getLineHeight(), 0);
+        guiNode.attachChild(gameTitle);
     }
     
     private void setCamPosition()
