@@ -10,6 +10,7 @@ import com.jme3.audio.AudioNode;
 public final class SFX 
 {
     private static AssetManager assetManager;
+    private static AudioNode setTower;
     
     public static void setAssetManager(AssetManager assetManager)
     {
@@ -18,7 +19,8 @@ public final class SFX
     
     public static void playSettingTower()
     {
-        AudioNode setTower = new AudioNode(assetManager, "Sounds/setTower2.ogg", false);
+        if (setTower == null)
+            setTower = new AudioNode(assetManager, "Sounds/setTower2.ogg", false);
         setTower.setPositional(false);
         setTower.play();
     }
