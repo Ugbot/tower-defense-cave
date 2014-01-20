@@ -27,18 +27,9 @@ public class SkyBox
                                       assetManager.loadTexture(path + "caveFront.png"),
                                       assetManager.loadTexture(path + "caveBack.png"),
                                       assetManager.loadTexture(path + "caveTop.png"),
-                                      assetManager.loadTexture(path + "caveDown.png"));
+                                      assetManager.loadTexture(path + "caveDown.png"));      
+        skyBox.setName("sky");
         
        rootNode.attachChild(skyBox); 
-    }
-    
-    public final void show()
-    {
-        skyBox.setCullHint(Spatial.CullHint.Never);
-    }
-    
-    public final void hide()
-    {
-        skyBox.setCullHint(Spatial.CullHint.Always);
     }
 }

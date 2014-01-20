@@ -1,7 +1,6 @@
 package com.cavedwellers.main;
 
-import com.cavedwellers.states.GameRunningAppState;
-import com.cavedwellers.states.StartScreenAppState;
+import com.cavedwellers.states.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 
