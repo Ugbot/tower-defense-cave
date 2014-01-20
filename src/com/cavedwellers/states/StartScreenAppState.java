@@ -167,9 +167,7 @@ public class StartScreenAppState extends AbstractAppState
         public void onAction(String name, boolean isKeyPressed, float tpf)
         {
             if (name.equals("Start Game") && !isKeyPressed)
-            {
                 hasPlayerPressedEnter = true;
-            }
         }
     };
 
