@@ -35,9 +35,9 @@ import java.util.logging.Logger;
 /**
  * This is an app state (http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states).
  *
- * When this state is attached, it'll present an intro screen while prompting
- * the user to press enter. Once the player presses enter, the app state is detached
- * and GameRunningState enabled.
+ * When this state is attached, it'll present an intro screen and wait for
+ * the user to press enter. Once the player presses enter, this state is detached
+ * and GameRunningState will be attached.
  * 
  * @author Abner Coimbre
  */
@@ -80,6 +80,7 @@ public class StartScreenAppState extends AbstractAppState
         this.inputManager = simpleApp.getInputManager();
         this.rootNode = simpleApp.getRootNode();
         this.guiNode = simpleApp.getGuiNode();
+        this.viewPort = simpleApp.getViewPort();
         
         Music.setAssetManager(assetManager);
         
@@ -119,23 +120,13 @@ public class StartScreenAppState extends AbstractAppState
         camera.setRotation(new Quaternion(0.019309944f, 0.95095277f, 0.060660467f, -0.30271494f));
         flyCam.setEnabled(false);
     }
-    
-    private void initFadeFilter()
-    {
-        fadeFilter = new FadeFilter(5);
-        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        fpp.addFilter(fadeFilter);
-        simpleApp.getViewPort().addProcessor(fpp);
-    }
-    
+
     private void initCave()
     {
-        Floor caveFloor = new Floor(assetManager, rootNode);
-        
-        Wall caveWall1 = new Wall(assetManager, rootNode, new Vector3f(-50, 0, 250));
-        Wall caveWall2 = new Wall(assetManager, rootNode, new Vector3f(50, 0, 250));
-
-        SkyBox caveSkyBox = new SkyBox(assetManager, rootNode);
+        new Floor(assetManager, rootNode);
+        new Wall(assetManager, rootNode, new Vector3f(-50, 0, 250));
+        new Wall(assetManager, rootNode, new Vector3f(50, 0, 250));
+        new SkyBox(assetManager, rootNode);
     }
     
     private void initAtmosphere()
@@ -155,6 +146,14 @@ public class StartScreenAppState extends AbstractAppState
         floorLighting.setDirection(camera.getDirection());
         floorLighting.setPosition(camera.getLocation());
         rootNode.addLight(floorLighting);
+    }
+    
+    private void initFadeFilter()
+    {
+        fadeFilter = new FadeFilter(5);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        fpp.addFilter(fadeFilter);
+        viewPort.addProcessor(fpp);
     }
     
     private void initKeyboardControls()
@@ -185,13 +184,13 @@ public class StartScreenAppState extends AbstractAppState
             }
         
         if (fadeFilter.getValue() <= 0)
-        {
             stateManager.detach(this);
-        }
         
-        try {
+        try 
+        {
             Thread.sleep(50);
-        } catch (InterruptedException ex) {
+        } catch (InterruptedException ex) 
+        {
             Logger.getLogger(StartScreenAppState.class.getName()).log(Level.SEVERE, null, ex);
         }
         

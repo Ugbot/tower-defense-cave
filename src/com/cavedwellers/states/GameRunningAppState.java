@@ -99,14 +99,7 @@ public final class GameRunningAppState extends AbstractAppState
     
     private Narrator gameNarrator;
     private boolean hasNarratorTalkedAboutTargeting;
-    private boolean hasNarratorTalkedAboutMenu;
     private boolean isTimeToQuitGame;
-
-    public GameRunningAppState()
-    {
-        atmosphere = new AmbientLight();
-        atmosphere.setColor(ColorRGBA.Gray.mult(5));
-    }
     
     public GameRunningAppState(AmbientLight initialAtmosphere)
     {
@@ -121,10 +114,7 @@ public final class GameRunningAppState extends AbstractAppState
         simpleApp = (SimpleApplication) app;
         
         gameNarrator = new Narrator(stateManager, simpleApp.getAssetManager(), simpleApp.getGuiNode());
-        
-        if (CaveDwellers.DEBUG_ON)
-            simpleApp.getRootNode().addLight(atmosphere);
- 
+
         initResources();
 
         initGUI();

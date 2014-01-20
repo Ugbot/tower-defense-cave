@@ -34,10 +34,6 @@ public class CaveDwellers extends SimpleApplication
     {
         setDisplayFps(false);
         setDisplayStatView(false);
-        
-        if (DEBUG_ON)
-            stateManager.attach(new GameRunningAppState());
-        else
-            stateManager.attach(new StartScreenAppState());
+        stateManager.attach(new StartScreenAppState());
     }
 }
