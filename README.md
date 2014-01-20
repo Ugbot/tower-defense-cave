@@ -13,10 +13,10 @@ Compiling From Source
 --------
 Here's one way to download the source code so you can fiddle with it:
 
-1. Download the latest version of jMonkey (http://jmonkeyengine.org)
+1. Download the latest version of jMonkey (http://jmonkeyengine.org).
 ![step1](https://f.cloud.github.com/assets/4027178/1884444/f5828ada-79a0-11e3-8949-7efd42c69178.png)
 
-2. Choose the option to clone a project
+2. Choose the option to clone a project.
 ![step2](https://f.cloud.github.com/assets/4027178/1884585/e6609cd6-79a5-11e3-9e23-85921905bb87.png)
 
 3. After forking this github repository, write down its link along with a github username and password.
