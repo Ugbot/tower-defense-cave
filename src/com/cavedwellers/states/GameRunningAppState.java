@@ -3,7 +3,6 @@ package com.cavedwellers.states;
 import com.cavedwellers.enemies.Ghost;
 import com.cavedwellers.enemies.Spider;
 import com.cavedwellers.controls.*;
-import com.cavedwellers.main.CaveDwellers;
 import com.cavedwellers.objects.*;
 import com.cavedwellers.utils.*;
 import com.jme3.app.Application;
