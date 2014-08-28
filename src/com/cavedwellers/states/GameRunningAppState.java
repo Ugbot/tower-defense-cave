@@ -218,11 +218,10 @@ public final class GameRunningAppState extends AbstractAppState
         Quaternion YAW090 = new Quaternion().fromAngleAxis(FastMath.PI/2, new Vector3f(0,1,0));
         
         for (int i = 0; i < shields.length; ++i)
-        {
             shields[i] = new ForceShield(assetManager, rootNode, locations[i]);
-            if (i > 1)
-                shields[i].rotate(YAW090);
-        }
+        
+        for (int i = shields.length-1; i > 1; --i)
+            shields[i].rotate(YAW090);
     }
     
     private void attachNodes()
