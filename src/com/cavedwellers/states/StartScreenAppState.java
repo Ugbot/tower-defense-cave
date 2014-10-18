@@ -108,7 +108,7 @@ public class StartScreenAppState extends AbstractAppState
         BitmapFont guiFont = assetManager.loadFont("Interface/Fonts/AppleChancery.fnt");
         BitmapText gameTitle = new BitmapText(guiFont, false);
         gameTitle.setSize(guiFont.getCharSet().getRenderedSize());
-        gameTitle.setText("Cave Dwellers - Early Prototype");
+        gameTitle.setText("Cave Dwellers - An Early Prototype");
         gameTitle.setColor(ColorRGBA.Red);
         gameTitle.setLocalTranslation(885, 500 + gameTitle.getLineHeight(), 0);
         guiNode.attachChild(gameTitle);
